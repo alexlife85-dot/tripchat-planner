@@ -1,7 +1,7 @@
 {
   "navigationFallback": {
     "rewrite": "/src/pages/login.html",
-    "exclude": ["/assets/**", "/css/**", "/js/**"]
+    "exclude": ["/public/*", "/src/*", "*.css", "*.js", "*.png", "*.jpg", "*.svg", "*.ico"]
   },
   "routes": [
     {
