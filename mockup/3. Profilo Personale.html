@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+        .slider-track {
+            background: linear-gradient(to right, #4F46E5 0%, #4F46E5 var(--value), #E5E7EB var(--value), #E5E7EB 100%);
+        }
+        .sortable-item {
+            cursor: move;
+        }
+        .sortable-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 min-h-screen">
+
+<div id="toast-notification" class="fixed top-4 right-4 z-50 hidden">
+    <div class="bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center space-x-2">
+        <i class="fa-solid fa-check-circle"></i>
+        <span>Preferenze salvate</span>
+    </div>
+</div>
+
+<div id="profile-setup-screen" class="w-full max-w-4xl mx-auto">
+    
+    <header id="header" class="pt-8 px-6 pb-4">
+        <div class="flex items-center justify-between">
+            <button id="back-btn" class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors">
+                <i class="fa-solid fa-arrow-left text-lg"></i>
+                <span class="text-sm font-medium">Indietro</span>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                <div class="w-2 h-2 bg-primary rounded-full"></div>
+                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="px-6 pb-8">
+        
+        <div id="title-section" class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Personalizza il tuo profilo</h1>
+            <p class="text-gray-600">Aiutaci a creare suggerimenti su misura per te</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            
+            <div id="profile-basic-section" class="space-y-6">
+                
+                <div id="avatar-section" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Foto profilo</h3>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <img id="avatar-image" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg" alt="Avatar" class="w-20 h-20 rounded-full object-cover border-4 border-gray-100">
+                            <button id="change-avatar-btn" class="absolute -bottom-1 -right-1 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-indigo-700 transition-colors">
+                                <i class="fa-solid fa-camera text-sm"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Aggiungi una foto per personalizzare il tuo profilo</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="bio-section" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <label for="bio-input" class="block text-lg font-semibold text-gray-900 mb-4">Bio</label>
+                    <textarea id="bio-input" rows="4" maxlength="140" placeholder="Raccontaci qualcosa di te e delle tue passioni di viaggio..." class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent resize-none"></textarea>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="text-xs text-gray-500">Massimo 140 caratteri</p>
+                        <span id="char-count" class="text-xs text-gray-400">0/140</span>
+                    </div>
+                </div>
+
+                <div id="locale-section" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Lingua e valuta</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Lingua</label>
+                            <select id="language-select" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="it-IT">Italiano</option>
+                                <option value="en-US">English</option>
+                                <option value="fr-FR">Français</option>
+                                <option value="de-DE">Deutsch</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Valuta</label>
+                            <select id="currency-select" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="EUR">EUR (€)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="CHF">CHF</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="preferences-section" class="space-y-6">
+                
+                <div id="travel-style-section" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Stile di viaggio</h3>
+                    <p class="text-sm text-gray-600 mb-4">Seleziona i tuoi stili preferiti</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="travel-style-chip flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:border-primary hover:bg-blue-50 transition-all" data-style="slow">
+                            <i class="fa-solid fa-leaf text-green-500"></i>
+                            <span class="text-sm font-medium">Slow</span>
+                        </button>
+                        <button class="travel-style-chip flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:border-primary hover:bg-blue-50 transition-all" data-style="family">
+                            <i class="fa-solid fa-users text-blue-500"></i>
+                            <span class="text-sm font-medium">Family</span>
+                        </button>
+                        <button class="travel-style-chip flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:border-primary hover:bg-blue-50 transition-all" data-style="foodie">
+                            <i class="fa-solid fa-utensils text-orange-500"></i>
+                            <span class="text-sm font-medium">Foodie</span>
+                        </button>
+                        <button class="travel-style-chip flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:border-primary hover:bg-blue-50 transition-all" data-style="nature">
+                            <i class="fa-solid fa-mountain text-green-600"></i>
+                            <span class="text-sm font-medium">Nature</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="budget-section" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Budget per persona</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">€200</span>
+                            <span id="budget-value" class="text-lg font-semibold text-primary">€1000</span>
+                            <span class="text-sm text-gray-600">€3000</span>
+                        </div>
+                        <div class="relative">
+                            <input type="range" id="budget-slider" min="200" max="3000" step="50" value="1000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-track">
+                        </div>
+                        <p class="text-xs text-gray-500 text-center">Budget giornaliero stimato per alloggio, cibo e attività</p>
+                    </div>
+                </div>
+
+                <div id="transport-priority-section" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Priorità trasporti</h3>
+                    <p class="text-sm text-gray-600 mb-4">Trascina per ordinare le tue preferenze</p>
+                    <div id="transport-list" class="space-y-3">
+                        <div class="sortable-item flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-200 transition-all" data-transport="train">
+                            <i class="fa-solid fa-grip-vertical text-gray-400"></i>
+                            <i class="fa-solid fa-train text-green-600"></i>
+                            <span class="font-medium">Treno</span>
+                        </div>
+                        <div class="sortable-item flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-200 transition-all" data-transport="plane">
+                            <i class="fa-solid fa-grip-vertical text-gray-400"></i>
+                            <i class="fa-solid fa-plane text-blue-600"></i>
+                            <span class="font-medium">Aereo</span>
+                        </div>
+                        <div class="sortable-item flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-200 transition-all" data-transport="car">
+                            <i class="fa-solid fa-grip-vertical text-gray-400"></i>
+                            <i class="fa-solid fa-car text-red-600"></i>
+                            <span class="font-medium">Auto</span>
+                        </div>
+                        <div class="sortable-item flex items-center space-x-3 p-3 bg-gray-50 rounded-xl border border-gray-200 transition-all" data-transport="walk">
+                            <i class="fa-solid fa-grip-vertical text-gray-400"></i>
+                            <i class="fa-solid fa-walking text-orange-600"></i>
+                            <span class="font-medium">A piedi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="city-preference-section" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Evita auto nelle grandi città</h3>
+                            <p class="text-sm text-gray-600">Privilegia trasporti pubblici e sostenibili</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="avoid-cars-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="privacy-note" class="max-w-4xl mx-auto mt-8 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <div class="flex items-start space-x-3">
+                <i class="fa-solid fa-info-circle text-blue-600 mt-1"></i>
+                <div class="flex-1">
+                    <p class="text-sm text-blue-800">
+                        <strong>Privacy:</strong> Queste preferenze vengono utilizzate per personalizzare i suggerimenti di viaggio. 
+                        Alcune informazioni potrebbero essere apprese dalle nostre conversazioni per migliorare l'esperienza.
+                    </p>
+                    <label class="flex items-center mt-3">
+                        <input type="checkbox" id="consent-checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                        <span class="ml-2 text-sm text-blue-800">Acconsento all'utilizzo delle mie preferenze per personalizzare i suggerimenti</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div id="actions-section" class="max-w-4xl mx-auto mt-8 space-y-4">
+            <button id="save-btn" class="w-full bg-primary hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-save"></i>
+                <span>Salva preferenze</span>
+            </button>
+            
+            <div class="text-center">
+                <a href="#" id="all-preferences-link" class="text-primary hover:text-indigo-700 font-medium text-sm transition-colors">
+                    Vedi tutte le preferenze
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    const bioInput = document.getElementById('bio-input');
+    const charCount = document.getElementById('char-count');
+    const budgetSlider = document.getElementById('budget-slider');
+    const budgetValue = document.getElementById('budget-value');
+    const travelStyleChips = document.querySelectorAll('.travel-style-chip');
+    const saveBtn = document.getElementById('save-btn');
+    const toastNotification = document.getElementById('toast-notification');
+    const consentCheckbox = document.getElementById('consent-checkbox');
+    const transportList = document.getElementById('transport-list');
+    
+    let selectedTravelStyles = [];
+    let draggedElement = null;
+
+    bioInput.addEventListener('input', function() {
+        const length = this.value.length;
+        charCount.textContent = `${length}/140`;
+        
+        if (length > 140) {
+            charCount.classList.add('text-red-500');
+        } else {
+            charCount.classList.remove('text-red-500');
+        }
+    });
+
+    budgetSlider.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        budgetValue.textContent = `€${value}`;
+        
+        const percentage = ((value - 200) / (3000 - 200)) * 100;
+        this.style.setProperty('--value', `${percentage}%`);
+    });
+
+    budgetSlider.dispatchEvent(new Event('input'));
+
+    travelStyleChips.forEach(chip => {
+        chip.addEventListener('click', function() {
+            const style = this.dataset.style;
+            
+            if (selectedTravelStyles.includes(style)) {
+                selectedTravelStyles = selectedTravelStyles.filter(s => s !== style);
+                this.classList.remove('border-primary', 'bg-blue-50');
+                this.classList.add('border-gray-200');
+            } else {
+                selectedTravelStyles.push(style);
+                this.classList.add('border-primary', 'bg-blue-50');
+                this.classList.remove('border-gray-200');
+            }
+        });
+    });
+
+    function makeSortable() {
+        const items = transportList.querySelectorAll('.sortable-item');
+        
+        items.forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedElement = this;
+                this.style.opacity = '0.5';
+            });
+            
+            item.addEventListener('dragend', function(e) {
+                this.style.opacity = '1';
+                draggedElement = null;
+            });
+            
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            item.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (draggedElement && draggedElement !== this) {
+                    const rect = this.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+                    
+                    if (e.clientY < midpoint) {
+                        this.parentNode.insertBefore(draggedElement, this);
+                    } else {
+                        this.parentNode.insertBefore(draggedElement, this.nextSibling);
+                    }
+                }
+            });
+            
+            item.setAttribute('draggable', true);
+        });
+    }
+
+    makeSortable();
+
+    function checkFormValidity() {
+        const hasConsent = consentCheckbox.checked;
+        saveBtn.disabled = !hasConsent;
+    }
+
+    consentCheckbox.addEventListener('change', checkFormValidity);
+    checkFormValidity();
+
+    saveBtn.addEventListener('click', function() {
+        if (!consentCheckbox.checked) {
+            return;
+        }
+
+        const formData = {
+            bio: bioInput.value,
+            language: document.getElementById('language-select').value,
+            currency: document.getElementById('currency-select').value,
+            travelStyles: selectedTravelStyles,
+            budget: parseInt(budgetSlider.value),
+            transportPriority: Array.from(transportList.children).map(item => item.dataset.transport),
+            avoidCarsInCities: document.getElementById('avoid-cars-toggle').checked
+        };
+
+        console.log('Saving preferences:', formData);
+
+        toastNotification.classList.remove('hidden');
+        setTimeout(() => {
+            toastNotification.classList.add('hidden');
+        }, 3000);
+    });
+
+    const buttons = document.querySelectorAll('button, input, select, textarea');
+    buttons.forEach(element => {
+        element.addEventListener('focus', function() {
+            this.style.outline = '3px solid rgba(79, 70, 229, 0.5)';
+            this.style.outlineOffset = '2px';
+        });
+        element.addEventListener('blur', function() {
+            this.style.outline = 'none';
+        });
+    });
+
+    document.getElementById('change-avatar-btn').addEventListener('click', function() {
+        const avatars = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        const currentAvatar = parseInt(document.getElementById('avatar-image').src.match(/avatar-(\d+)\.jpg/)[1]);
+        let newAvatar = currentAvatar;
+        
+        do {
+            newAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+        } while (newAvatar === currentAvatar);
+        
+        document.getElementById('avatar-image').src = `https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-${newAvatar}.jpg`;
+    });
+});
+</script>
+
+</body>
+</html>

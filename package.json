@@ -1,0 +1,38 @@
+{
+  "name": "tripchat-planner",
+  "version": "1.0.0",
+  "description": "TripChat Planner - POC per app di pianificazione viaggi con AI",
+  "main": "src/pages/login.html",
+  "scripts": {
+    "start": "npx serve . -l 3000",
+    "dev": "npx serve . -l 3000",
+    "serve": "npx serve . -l 8080",
+    "preview": "npx serve . -l 8080",
+    "deploy": "echo 'Deploy avviene automaticamente via GitHub Actions'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/tripchat-planner.git"
+  },
+  "homepage": "https://tripchat-planner-webapp.azurestaticapps.net",
+  "keywords": [
+    "travel",
+    "ai",
+    "trip-planner",
+    "poc",
+    "demo",
+    "vanilla-js"
+  ],
+  "author": "TripChat Team",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {},
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/tripchat-planner"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

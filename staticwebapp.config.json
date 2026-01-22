@@ -1,0 +1,60 @@
+{
+  "navigationFallback": {
+    "rewrite": "/src/pages/login.html",
+    "exclude": ["/assets/**", "/css/**", "/js/**"]
+  },
+  "routes": [
+    {
+      "route": "/",
+      "redirect": "/src/pages/login.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/login",
+      "rewrite": "/src/pages/login.html"
+    },
+    {
+      "route": "/home",
+      "rewrite": "/src/pages/home.html"
+    },
+    {
+      "route": "/chat",
+      "rewrite": "/src/pages/chat.html"
+    },
+    {
+      "route": "/trips",
+      "rewrite": "/src/pages/trips.html"
+    },
+    {
+      "route": "/trip-detail",
+      "rewrite": "/src/pages/trip-detail.html"
+    },
+    {
+      "route": "/profile",
+      "rewrite": "/src/pages/profile.html"
+    }
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/src/pages/login.html",
+      "statusCode": 404
+    }
+  },
+  "globalHeaders": {
+    "Cache-Control": "public, max-age=3600",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block"
+  },
+  "mimeTypes": {
+    ".html": "text/html",
+    ".css": "text/css",
+    ".js": "application/javascript",
+    ".json": "application/json",
+    ".jpg": "image/jpeg",
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2"
+  }
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TripChat Planner - Accedi al tuo account e pianifica viaggi con l'intelligenza artificiale">
+    <title>Login - TripChat Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = {autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar {display: none;}
+        body {font-family: 'Inter', sans-serif;}
+        .focus-ring:focus {
+            outline: 3px solid rgba(79, 70, 229, 0.5);
+            outline-offset: 2px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 overflow-x-hidden">
+
+<!-- Banner offline -->
+<div id="offline-banner" class="hidden bg-amber-50 border-b border-amber-200 px-4 py-2">
+    <div class="flex items-center justify-center">
+        <i class="fa-solid fa-wifi-slash text-amber-600 text-sm mr-2"></i>
+        <span class="text-sm text-amber-800">Connessione assente. Alcune funzioni potrebbero non essere disponibili.</span>
+    </div>
+</div>
+
+<div id="welcome-screen" class="min-h-screen flex flex-col">
+    
+    <!-- Header -->
+    <header class="pt-8 px-6">
+        <div class="flex justify-end">
+            <button id="language-selector" class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors focus-ring rounded-lg px-2 py-1">
+                <i class="fa-solid fa-globe text-lg"></i>
+                <span class="text-sm font-medium">IT</span>
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="flex-1 flex flex-col justify-center px-6 pb-8">
+        
+        <!-- Hero section -->
+        <div class="text-center mb-12">
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl shadow-lg mb-6">
+                    <i class="fa-solid fa-comments text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-900 mb-3">TripChat Planner</h1>
+                <p class="text-xl text-gray-600 font-medium">Pianifica viaggi parlando</p>
+            </div>
+            
+            <div class="max-w-sm mx-auto">
+                <img class="w-full h-auto rounded-2xl shadow-xl" 
+                     src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&h=400&fit=crop" 
+                     alt="Viaggiatore che pianifica un'avventura con smartphone" />
+            </div>
+        </div>
+
+        <!-- Login section -->
+        <div class="max-w-md mx-auto w-full space-y-4">
+            
+            <button id="email-login-btn" class="focus-ring w-full bg-primary hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-3">
+                <i class="fa-solid fa-envelope text-lg"></i>
+                <span>Continua con email</span>
+            </button>
+
+            <div class="flex items-center space-x-3">
+                <div class="flex-1 h-px bg-gray-300"></div>
+                <span class="text-sm text-gray-500 font-medium">oppure</span>
+                <div class="flex-1 h-px bg-gray-300"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button id="apple-login-btn" class="focus-ring bg-black hover:bg-gray-800 text-white font-semibold py-4 px-4 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-2">
+                    <i class="fa-brands fa-apple text-xl"></i>
+                    <span class="text-sm">Apple</span>
+                </button>
+                
+                <button id="google-login-btn" class="focus-ring bg-white hover:bg-gray-50 text-gray-800 font-semibold py-4 px-4 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 border border-gray-200">
+                    <i class="fa-brands fa-google text-xl text-red-500"></i>
+                    <span class="text-sm">Google</span>
+                </button>
+            </div>
+
+            <!-- Messaggi di errore -->
+            <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
+                <div class="flex items-start space-x-3">
+                    <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i>
+                    <div class="flex-1">
+                        <p class="text-sm text-red-800 font-medium">Errore di accesso</p>
+                        <p class="text-xs text-red-600 mt-1">Verifica le credenziali e riprova.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="rate-limit-message" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mt-4">
+                <div class="flex items-start space-x-3">
+                    <i class="fa-solid fa-clock text-amber-600 mt-0.5"></i>
+                    <div class="flex-1">
+                        <p class="text-sm text-amber-800 font-medium">Troppi tentativi</p>
+                        <p class="text-xs text-amber-700 mt-1">Attendi qualche minuto prima di riprovare.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="demo-btn" class="focus-ring w-full bg-transparent hover:bg-gray-100 text-gray-700 font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center space-x-2 mt-6">
+                <i class="fa-solid fa-play-circle text-lg"></i>
+                <span>Prova la demo</span>
+            </button>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="pb-8 px-6">
+        <div class="max-w-md mx-auto">
+            <div class="flex items-center justify-center space-x-6 text-sm text-gray-600">
+                <a href="#" class="hover:text-primary transition-colors font-medium">Termini</a>
+                <span class="text-gray-400">·</span>
+                <a href="#" class="hover:text-primary transition-colors font-medium">Privacy</a>
+            </div>
+            <p class="text-center text-xs text-gray-500 mt-4">© 2026 TripChat Planner. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+</div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl p-8 shadow-2xl text-center max-w-sm mx-4">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mx-auto mb-4"></div>
+        <p class="text-gray-700 font-medium">Accesso in corso...</p>
+    </div>
+</div>
+
+<!-- Modal MFA (nascosto di default) -->
+<div id="mfa-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-primary bg-opacity-10 rounded-full mb-4">
+                <i class="fa-solid fa-shield-halved text-primary text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Verifica a due fattori</h2>
+            <p class="text-gray-600">Inserisci il codice inviato al tuo dispositivo</p>
+        </div>
+        
+        <form id="mfa-form">
+            <div class="flex justify-center space-x-2 mb-6">
+                <input type="text" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors" aria-label="Prima cifra">
+                <input type="text" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors" aria-label="Seconda cifra">
+                <input type="text" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors" aria-label="Terza cifra">
+                <input type="text" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors" aria-label="Quarta cifra">
+                <input type="text" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors" aria-label="Quinta cifra">
+                <input type="text" maxlength="1" class="w-12 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none transition-colors" aria-label="Sesta cifra">
+            </div>
+            
+            <button type="submit" class="focus-ring w-full bg-primary hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-colors mb-3">
+                Verifica codice
+            </button>
+            
+            <button type="button" id="resend-code-btn" class="focus-ring w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors">
+                Invia nuovo codice
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    const emailBtn = document.getElementById('email-login-btn');
+    const appleBtn = document.getElementById('apple-login-btn');
+    const googleBtn = document.getElementById('google-login-btn');
+    const demoBtn = document.getElementById('demo-btn');
+    const errorMessage = document.getElementById('error-message');
+    const rateLimitMessage = document.getElementById('rate-limit-message');
+    const offlineBanner = document.getElementById('offline-banner');
+    const languageSelector = document.getElementById('language-selector');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const mfaModal = document.getElementById('mfa-modal');
+    const mfaForm = document.getElementById('mfa-form');
+    const resendCodeBtn = document.getElementById('resend-code-btn');
+
+    let loginAttempts = 0;
+    const maxAttempts = 3;
+
+    // Check online status
+    function checkOnlineStatus() {
+        if (!navigator.onLine) {
+            offlineBanner.classList.remove('hidden');
+        } else {
+            offlineBanner.classList.add('hidden');
+        }
+    }
+
+    window.addEventListener('online', checkOnlineStatus);
+    window.addEventListener('offline', checkOnlineStatus);
+    checkOnlineStatus();
+
+    // Handle login
+    function handleLogin(provider) {
+        errorMessage.classList.add('hidden');
+        rateLimitMessage.classList.add('hidden');
+
+        if (loginAttempts >= maxAttempts) {
+            rateLimitMessage.classList.remove('hidden');
+            return;
+        }
+
+        loginAttempts++;
+        loadingOverlay.classList.remove('hidden');
+
+        // Simula chiamata API
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+            
+            // Mock: mostra MFA se email
+            if (provider === 'email') {
+                mfaModal.classList.remove('hidden');
+                document.querySelector('#mfa-form input').focus();
+            } else {
+                // Mock: redirect a home per social login
+                window.location.href = 'home.html';
+            }
+        }, 1500);
+
+        console.log('Login con:', provider);
+    }
+
+    // MFA inputs auto-focus
+    const mfaInputs = document.querySelectorAll('#mfa-form input');
+    mfaInputs.forEach((input, index) => {
+        input.addEventListener('input', function() {
+            if (this.value.length === 1 && index < mfaInputs.length - 1) {
+                mfaInputs[index + 1].focus();
+            }
+        });
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                mfaInputs[index - 1].focus();
+            }
+        });
+    });
+
+    // MFA form submit
+    mfaForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const code = Array.from(mfaInputs).map(input => input.value).join('');
+        if (code.length === 6) {
+            loadingOverlay.classList.remove('hidden');
+            mfaModal.classList.add('hidden');
+            setTimeout(() => {
+                window.location.href = 'home.html';
+            }, 1000);
+        }
+    });
+
+    // Resend code
+    resendCodeBtn.addEventListener('click', function() {
+        console.log('Codice reinviato');
+        mfaInputs.forEach(input => input.value = '');
+        mfaInputs[0].focus();
+    });
+
+    // Event listeners
+    emailBtn.addEventListener('click', () => handleLogin('email'));
+    appleBtn.addEventListener('click', () => handleLogin('apple'));
+    googleBtn.addEventListener('click', () => handleLogin('google'));
+    
+    demoBtn.addEventListener('click', function() {
+        window.location.href = 'home.html?demo=true';
+    });
+
+    languageSelector.addEventListener('click', function() {
+        console.log('Apertura selettore lingua');
+    });
+});
+</script>
+
+</body>
+</html>

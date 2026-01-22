@@ -1,0 +1,78 @@
+<!-- Header Component -->
+<header class="app-header" role="banner">
+    <div class="header-container">
+        
+        <!-- Logo e brand -->
+        <div class="header-brand">
+            <a href="home.html" class="logo-link">
+                <img src="../../public/assets/images/logo.svg" alt="TripChat Planner" class="logo">
+                <span class="brand-name">TripChat Planner</span>
+            </a>
+        </div>
+
+        <!-- Navigazione principale -->
+        <nav class="header-nav" role="navigation">
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon icon-home"></span>
+                <span class="nav-label">Home</span>
+            </a>
+            <a href="trips.html" class="nav-item">
+                <span class="nav-icon icon-trips"></span>
+                <span class="nav-label">I miei viaggi</span>
+            </a>
+            <a href="chat.html" class="nav-item">
+                <span class="nav-icon icon-chat"></span>
+                <span class="nav-label">Pianifica</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon icon-user"></span>
+                <span class="nav-label">Profilo</span>
+            </a>
+        </nav>
+
+        <!-- Azioni utente -->
+        <div class="header-actions">
+            <!-- Notifiche -->
+            <button class="header-btn btn-notifications" aria-label="Notifiche">
+                <span class="icon-bell"></span>
+                <span class="notification-badge">3</span>
+            </button>
+
+            <!-- Menu utente -->
+            <div class="user-menu">
+                <button class="user-menu-trigger" aria-label="Menu utente" aria-haspopup="true" aria-expanded="false">
+                    <img src="../../public/assets/images/avatar-placeholder.jpg" alt="Avatar utente" class="user-avatar">
+                    <span class="user-name">Marco</span>
+                    <span class="icon-chevron-down"></span>
+                </button>
+
+                <!-- Dropdown menu (nascosto di default) -->
+                <div class="user-dropdown" role="menu">
+                    <a href="profile.html" class="dropdown-item" role="menuitem">
+                        <span class="icon-user"></span>
+                        Profilo
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon-settings"></span>
+                        Impostazioni
+                    </a>
+                    <a href="#" class="dropdown-item" role="menuitem">
+                        <span class="icon-help"></span>
+                        Aiuto
+                    </a>
+                    <hr class="dropdown-divider">
+                    <a href="login.html" class="dropdown-item" role="menuitem">
+                        <span class="icon-logout"></span>
+                        Esci
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mobile menu toggle -->
+            <button class="mobile-menu-toggle" aria-label="Apri menu" aria-expanded="false">
+                <span class="hamburger-icon"></span>
+            </button>
+        </div>
+
+    </div>
+</header>

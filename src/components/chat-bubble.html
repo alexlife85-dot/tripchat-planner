@@ -1,0 +1,152 @@
+<!-- Chat Bubble Component -->
+<!-- Componente riutilizzabile per messaggi nella chat -->
+
+<!-- MESSAGGIO SISTEMA -->
+<div class="message message-system" data-message-id="{MESSAGE_ID}">
+    <div class="message-avatar">
+        <span class="icon-bot"></span>
+    </div>
+    <div class="message-content">
+        <div class="message-bubble">
+            {MESSAGE_CONTENT}
+        </div>
+        <time class="message-time" datetime="{ISO_TIMESTAMP}">{DISPLAY_TIME}</time>
+    </div>
+</div>
+
+<!-- MESSAGGIO UTENTE -->
+<div class="message message-user" data-message-id="{MESSAGE_ID}">
+    <div class="message-content">
+        <div class="message-bubble">
+            {MESSAGE_CONTENT}
+        </div>
+        <time class="message-time" datetime="{ISO_TIMESTAMP}">{DISPLAY_TIME}</time>
+    </div>
+    <div class="message-avatar">
+        <span class="icon-user"></span>
+    </div>
+</div>
+
+<!-- MESSAGGIO SISTEMA CON LISTA -->
+<div class="message message-system" data-message-id="{MESSAGE_ID}">
+    <div class="message-avatar">
+        <span class="icon-bot"></span>
+    </div>
+    <div class="message-content">
+        <div class="message-bubble">
+            <p>{MESSAGE_TEXT}</p>
+            <ul class="clarification-list">
+                {FOREACH_ITEM}
+                <li>{LIST_ITEM}</li>
+                {/FOREACH_ITEM}
+            </ul>
+        </div>
+        <time class="message-time" datetime="{ISO_TIMESTAMP}">{DISPLAY_TIME}</time>
+    </div>
+</div>
+
+<!-- MESSAGGIO SISTEMA CON CARD SUGGERIMENTO -->
+<div class="message message-system" data-message-id="{MESSAGE_ID}">
+    <div class="message-avatar">
+        <span class="icon-bot"></span>
+    </div>
+    <div class="message-content">
+        <div class="message-bubble">
+            <p>{MESSAGE_TEXT}</p>
+            
+            <!-- Card destinazione suggerita -->
+            <div class="suggestion-card-inline">
+                <img src="{SUGGESTION_IMAGE}" alt="{DESTINATION_NAME}" class="suggestion-image">
+                <div class="suggestion-info">
+                    <h4>{DESTINATION_NAME}</h4>
+                    <p>{DESTINATION_DESCRIPTION}</p>
+                    <div class="suggestion-meta">
+                        <span class="icon-calendar"></span>
+                        <span>{BEST_TIME}</span>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="selectDestination('{DESTINATION_ID}')">
+                        Scegli questa destinazione
+                    </button>
+                </div>
+            </div>
+        </div>
+        <time class="message-time" datetime="{ISO_TIMESTAMP}">{DISPLAY_TIME}</time>
+    </div>
+</div>
+
+<!-- MESSAGGIO SISTEMA CON QUICK REPLIES -->
+<div class="message message-system" data-message-id="{MESSAGE_ID}">
+    <div class="message-avatar">
+        <span class="icon-bot"></span>
+    </div>
+    <div class="message-content">
+        <div class="message-bubble">
+            <p>{MESSAGE_TEXT}</p>
+        </div>
+        
+        <!-- Risposte rapide -->
+        <div class="quick-replies-inline">
+            {FOREACH_REPLY}
+            <button class="quick-reply-btn" onclick="sendQuickReply('{REPLY_VALUE}')">
+                {REPLY_LABEL}
+            </button>
+            {/FOREACH_REPLY}
+        </div>
+        
+        <time class="message-time" datetime="{ISO_TIMESTAMP}">{DISPLAY_TIME}</time>
+    </div>
+</div>
+
+<!-- TYPING INDICATOR (Indicatore di digitazione) -->
+<div class="message message-system typing-indicator" id="typingIndicator">
+    <div class="message-avatar">
+        <span class="icon-bot"></span>
+    </div>
+    <div class="message-content">
+        <div class="message-bubble">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        </div>
+    </div>
+</div>
+
+<!-- MESSAGGIO DI ERRORE -->
+<div class="message message-error" data-message-id="{MESSAGE_ID}">
+    <div class="message-avatar">
+        <span class="icon-alert"></span>
+    </div>
+    <div class="message-content">
+        <div class="message-bubble">
+            <p class="error-text">{ERROR_MESSAGE}</p>
+            <button class="btn btn-sm btn-text" onclick="retryMessage('{MESSAGE_ID}')">
+                Riprova
+            </button>
+        </div>
+        <time class="message-time" datetime="{ISO_TIMESTAMP}">{DISPLAY_TIME}</time>
+    </div>
+</div>
+
+<!-- 
+    UTILIZZO:
+    Sostituire i placeholder {} con i valori dinamici:
+    
+    {MESSAGE_ID} - ID univoco del messaggio
+    {MESSAGE_CONTENT} - Contenuto HTML del messaggio
+    {MESSAGE_TEXT} - Testo del messaggio
+    {ISO_TIMESTAMP} - Timestamp ISO 8601 es. "2026-02-15T10:23:00Z"
+    {DISPLAY_TIME} - Orario formattato es. "10:23", "Ora", "Ieri"
+    {LIST_ITEM} - Elemento della lista (ripetuto)
+    {SUGGESTION_IMAGE} - URL immagine suggerimento
+    {DESTINATION_NAME} - Nome destinazione
+    {DESTINATION_DESCRIPTION} - Descrizione breve
+    {DESTINATION_ID} - ID destinazione
+    {BEST_TIME} - Periodo migliore
+    {REPLY_VALUE} - Valore della risposta rapida
+    {REPLY_LABEL} - Etichetta della risposta rapida
+    {ERROR_MESSAGE} - Messaggio di errore
+    
+    Blocchi condizionali:
+    {FOREACH_ITEM}...{/FOREACH_ITEM}
+    {FOREACH_REPLY}...{/FOREACH_REPLY}
+-->

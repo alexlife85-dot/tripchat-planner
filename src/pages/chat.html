@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TripChat Planner - Chat di pianificazione viaggi con intelligenza artificiale">
+    <title>Chat - TripChat Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = {autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .message-enter {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .typing-indicator span {
+            animation: pulse 1.4s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .chip-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .map-marker {
+            transition: transform 0.3s ease;
+        }
+
+        .map-marker:hover {
+            transform: scale(1.2);
+        }
+
+        .focus-ring:focus {
+            outline: 3px solid rgba(79, 70, 229, 0.5);
+            outline-offset: 2px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+
+<div class="flex h-screen max-w-[1440px] mx-auto overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-80 bg-white border-r border-gray-200 flex flex-col">
+        
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-bold text-gray-900">TripChat</h1>
+                <button id="new-chat-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Nuova chat">
+                    <i class="fa-solid fa-plus text-gray-600"></i>
+                </button>
+            </div>
+            <div class="relative">
+                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" 
+                       id="search-conversations"
+                       placeholder="Cerca conversazioni..." 
+                       class="focus-ring w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-2">
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 cursor-pointer transition-colors">
+                <div class="flex items-start justify-between mb-1">
+                    <h3 class="font-semibold text-gray-900 text-sm">Tokyo & Kyoto</h3>
+                    <span class="text-xs text-gray-500">Oggi</span>
+                </div>
+                <p class="text-xs text-gray-600 line-clamp-2">10 giorni a ottobre, budget medio...</p>
+            </div>
+            
+            <div class="p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors">
+                <div class="flex items-start justify-between mb-1">
+                    <h3 class="font-semibold text-gray-900 text-sm">Costa Amalfitana</h3>
+                    <span class="text-xs text-gray-500">Ieri</span>
+                </div>
+                <p class="text-xs text-gray-600 line-clamp-2">Weekend romantico a maggio</p>
+            </div>
+
+            <div class="p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors">
+                <div class="flex items-start justify-between mb-1">
+                    <h3 class="font-semibold text-gray-900 text-sm">Road Trip Islanda</h3>
+                    <span class="text-xs text-gray-500">3 giorni fa</span>
+                </div>
+                <p class="text-xs text-gray-600 line-clamp-2">2 settimane in estate, natura</p>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex items-center space-x-3">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                     alt="Profilo utente" 
+                     class="w-10 h-10 rounded-full object-cover">
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-gray-900">Maria Rossi</p>
+                    <button id="settings-link" class="text-xs text-gray-500 hover:text-primary">Impostazioni</button>
+                </div>
+                <button id="menu-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Menu">
+                    <i class="fa-solid fa-ellipsis-vertical text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 flex flex-col bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50">
+        
+        <!-- Chat header -->
+        <header class="bg-white border-b border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-robot text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold text-gray-900">Assistente TripChat</h2>
+                        <p class="text-xs text-green-600 flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                            Online
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="show-map-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Mostra mappa">
+                        <i class="fa-solid fa-map text-gray-600"></i>
+                    </button>
+                    <button id="trip-info-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Info viaggio">
+                        <i class="fa-solid fa-info-circle text-gray-600"></i>
+                    </button>
+                    <button id="back-home-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Torna alla home">
+                        <i class="fa-solid fa-home text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Trip summary bar -->
+        <div class="bg-white border-b border-gray-200 p-4 shadow-sm" role="status" aria-live="polite">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4 flex-wrap gap-2">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-location-dot text-primary"></i>
+                        <span class="text-sm font-semibold text-gray-900">Tokyo → Kyoto</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-calendar text-secondary"></i>
+                        <span class="text-sm text-gray-600">10-20 Ottobre</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-users text-accent"></i>
+                        <span class="text-sm text-gray-600">2 persone</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-wallet text-green-600"></i>
+                        <span class="text-sm text-gray-600">€1500/persona</span>
+                    </div>
+                </div>
+                <button id="edit-trip-btn" class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium px-2 py-1 rounded">Modifica</button>
+            </div>
+        </div>
+
+        <!-- Messages container -->
+        <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-4" role="log" aria-live="polite" aria-atomic="false">
+            
+            <!-- Bot message -->
+            <div class="flex items-start space-x-3 message-enter">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100 max-w-lg">
+                        <p class="text-gray-800">Ciao! 👋 Sono il tuo assistente di viaggio. Raccontami dove vorresti andare e ti aiuterò a creare l'itinerario perfetto!</p>
+                    </div>
+                    <span class="text-xs text-gray-500 mt-1 block">10:23</span>
+                </div>
+            </div>
+
+            <!-- User message -->
+            <div class="flex items-start space-x-3 justify-end message-enter">
+                <div class="flex-1 flex justify-end">
+                    <div>
+                        <div class="bg-primary rounded-2xl rounded-tr-none p-4 shadow-sm max-w-lg">
+                            <p class="text-white">Vorrei fare 10 giorni tra Tokyo e Kyoto a ottobre, budget medio</p>
+                        </div>
+                        <span class="text-xs text-gray-500 mt-1 block text-right">10:24</span>
+                    </div>
+                </div>
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                     alt="User" 
+                     class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+            </div>
+
+            <!-- Bot message with checklist -->
+            <div class="flex items-start space-x-3 message-enter">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100 max-w-lg">
+                        <p class="text-gray-800 mb-3">Perfetto! Un viaggio in Giappone a ottobre è un'ottima scelta. 🍂 Ho capito:</p>
+                        <div class="space-y-2 mb-3">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <i class="fa-solid fa-check-circle text-green-500"></i>
+                                <span><strong>Destinazioni:</strong> Tokyo e Kyoto</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-sm">
+                                <i class="fa-solid fa-check-circle text-green-500"></i>
+                                <span><strong>Durata:</strong> 10 giorni</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-sm">
+                                <i class="fa-solid fa-check-circle text-green-500"></i>
+                                <span><strong>Periodo:</strong> Ottobre</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-sm">
+                                <i class="fa-solid fa-check-circle text-green-500"></i>
+                                <span><strong>Budget:</strong> Medio</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-800">Mi servono ancora alcune informazioni:</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-3 max-w-lg">
+                        <button class="quick-reply-chip chip-hover px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-sm font-medium text-blue-700 transition-all hover:bg-blue-100">
+                            <i class="fa-solid fa-calendar mr-1"></i>
+                            Date esatte
+                        </button>
+                        <button class="quick-reply-chip chip-hover px-4 py-2 bg-purple-50 border border-purple-200 rounded-full text-sm font-medium text-purple-700 transition-all hover:bg-purple-100">
+                            <i class="fa-solid fa-users mr-1"></i>
+                            Numero persone
+                        </button>
+                        <button class="quick-reply-chip chip-hover px-4 py-2 bg-green-50 border border-green-200 rounded-full text-sm font-medium text-green-700 transition-all hover:bg-green-100">
+                            <i class="fa-solid fa-wallet mr-1"></i>
+                            Budget preciso
+                        </button>
+                    </div>
+                    <span class="text-xs text-gray-500 mt-2 block">10:25</span>
+                </div>
+            </div>
+
+            <!-- Map preview -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 max-w-2xl mx-auto message-enter">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-gray-900 flex items-center">
+                        <i class="fa-solid fa-map-location-dot text-primary mr-2"></i>
+                        Itinerario riconosciuto
+                    </h3>
+                    <button class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium px-2 py-1 rounded">Espandi</button>
+                </div>
+                <div class="relative h-48 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl overflow-hidden">
+                    <div class="absolute inset-0 flex items-center justify-around p-6">
+                        <div class="text-center map-marker">
+                            <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-2 mx-auto shadow-lg">
+                                <i class="fa-solid fa-location-dot text-white"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-900">Tokyo</span>
+                            <p class="text-xs text-gray-600">5 giorni</p>
+                        </div>
+                        <div class="flex-1 flex items-center justify-center">
+                            <div class="border-t-2 border-dashed border-primary w-full relative">
+                                <i class="fa-solid fa-train absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary bg-white px-2"></i>
+                            </div>
+                        </div>
+                        <div class="text-center map-marker">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center mb-2 mx-auto shadow-lg">
+                                <i class="fa-solid fa-location-dot text-white"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-900">Kyoto</span>
+                            <p class="text-xs text-gray-600">5 giorni</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User message -->
+            <div class="flex items-start space-x-3 justify-end message-enter">
+                <div class="flex-1 flex justify-end">
+                    <div>
+                        <div class="bg-primary rounded-2xl rounded-tr-none p-4 shadow-sm max-w-lg">
+                            <p class="text-white">Saremo in 2, dal 10 al 20 ottobre, budget circa 1500€ a persona</p>
+                        </div>
+                        <span class="text-xs text-gray-500 mt-1 block text-right">10:26</span>
+                    </div>
+                </div>
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                     alt="User" 
+                     class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+            </div>
+
+            <!-- Bot message with summary -->
+            <div class="flex items-start space-x-3 message-enter">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100 max-w-lg">
+                        <p class="text-gray-800 mb-3">Eccellente! ✨ Ho tutte le informazioni necessarie. Il tuo viaggio include:</p>
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 mb-3 border border-blue-100">
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <p class="text-gray-600 text-xs">Destinazioni</p>
+                                    <p class="font-semibold text-gray-900">Tokyo → Kyoto</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 text-xs">Date</p>
+                                    <p class="font-semibold text-gray-900">10-20 Ott</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 text-xs">Persone</p>
+                                    <p class="font-semibold text-gray-900">2 adulti</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 text-xs">Budget totale</p>
+                                    <p class="font-semibold text-gray-900">€3000</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-800">Vuoi che crei una bozza di itinerario?</p>
+                    </div>
+                    <button id="create-itinerary-btn" class="focus-ring mt-3 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>
+                        Crea bozza itinerario
+                    </button>
+                    <span class="text-xs text-gray-500 mt-2 block">10:27</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Input section -->
+        <div class="bg-white border-t border-gray-200 p-4">
+            <div class="max-w-4xl mx-auto">
+                <div id="quick-suggestions" class="flex flex-wrap gap-2 mb-3">
+                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all">
+                        Aggiungi tappa
+                    </button>
+                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all">
+                        Cambia date
+                    </button>
+                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all">
+                        Preferenze trasporto
+                    </button>
+                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all">
+                        Suggerisci attività
+                    </button>
+                </div>
+                
+                <div class="flex items-end space-x-3">
+                    <button id="attach-btn" class="focus-ring p-3 hover:bg-gray-100 rounded-xl transition-colors" aria-label="Allega file">
+                        <i class="fa-solid fa-plus text-gray-600"></i>
+                    </button>
+                    <div class="flex-1 relative">
+                        <textarea id="message-input" 
+                                  rows="1" 
+                                  placeholder="Scrivi un messaggio o descrivi il tuo viaggio..." 
+                                  class="focus-ring w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm" 
+                                  style="max-height: 120px;"></textarea>
+                    </div>
+                    <button id="send-btn" class="focus-ring p-3 bg-primary hover:bg-indigo-700 text-white rounded-xl transition-colors" aria-label="Invia messaggio">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                    <button id="voice-btn" class="focus-ring p-3 hover:bg-gray-100 rounded-xl transition-colors" aria-label="Messaggio vocale">
+                        <i class="fa-solid fa-microphone text-gray-600"></i>
+                    </button>
+                </div>
+                
+                <p class="text-xs text-gray-500 mt-2 text-center">
+                    TripChat può commettere errori. Verifica sempre le informazioni importanti.
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+<!-- Menu dropdown (hidden by default) -->
+<div id="menu-dropdown" class="hidden fixed bottom-20 left-6 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50">
+    <div class="p-2">
+        <a href="home.html" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-home text-gray-600"></i>
+            <span class="text-sm text-gray-900">Home</span>
+        </a>
+        <a href="trips.html" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-suitcase text-gray-600"></i>
+            <span class="text-sm text-gray-900">I miei viaggi</span>
+        </a>
+        <a href="profile.html" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-user-circle text-gray-600"></i>
+            <span class="text-sm text-gray-900">Profilo</span>
+        </a>
+        <hr class="my-2">
+        <a href="login.html" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-red-50 transition-colors text-red-600">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="text-sm">Esci</span>
+        </a>
+    </div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const messagesContainer = document.getElementById('messages-container');
+    const createItineraryBtn = document.getElementById('create-itinerary-btn');
+    const menuBtn = document.getElementById('menu-btn');
+    const menuDropdown = document.getElementById('menu-dropdown');
+    const backHomeBtn = document.getElementById('back-home-btn');
+    const settingsLink = document.getElementById('settings-link');
+    const newChatBtn = document.getElementById('new-chat-btn');
+
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // Scroll to bottom
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Add message
+    function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex items-start space-x-3 ${isUser ? 'justify-end' : ''} message-enter`;
+        
+        const time = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+        
+        if (isUser) {
+            messageDiv.innerHTML = `
+                <div class="flex-1 flex justify-end">
+                    <div>
+                        <div class="bg-primary rounded-2xl rounded-tr-none p-4 shadow-sm max-w-lg">
+                            <p class="text-white">${content}</p>
+                        </div>
+                        <span class="text-xs text-gray-500 mt-1 block text-right">${time}</span>
+                    </div>
+                </div>
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="User" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+            `;
+        } else {
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100 max-w-lg">
+                        <p class="text-gray-800">${content}</p>
+                    </div>
+                    <span class="text-xs text-gray-500 mt-1 block">${time}</span>
+                </div>
+            `;
+        }
+        
+        messagesContainer.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    // Show typing indicator
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typing-indicator';
+        typingDiv.className = 'flex items-start space-x-3 message-enter';
+        typingDiv.innerHTML = `
+            <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-robot text-white text-sm"></i>
+            </div>
+            <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100">
+                <div class="typing-indicator flex space-x-1">
+                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                </div>
+            </div>
+        `;
+        messagesContainer.appendChild(typingDiv);
+        scrollToBottom();
+    }
+
+    // Remove typing indicator
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    // Send message
+    sendBtn.addEventListener('click', function() {
+        const message = messageInput.value.trim();
+        if (message) {
+            addMessage(message, true);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            showTypingIndicator();
+            setTimeout(() => {
+                removeTypingIndicator();
+                addMessage('Grazie per le informazioni! Sto elaborando il tuo itinerario... 🗺️');
+            }, 1500);
+        }
+    });
+
+    // Enter to send
+    messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendBtn.click();
+        }
+    });
+
+    // Create itinerary button
+    createItineraryBtn.addEventListener('click', function() {
+        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Creazione in corso...';
+        this.disabled = true;
+        
+        setTimeout(() => {
+            addMessage('Perfetto! Sto creando il tuo itinerario personalizzato. Ti mostrerò le migliori opzioni per alloggi, trasporti e attività. 🎉');
+            setTimeout(() => {
+                window.location.href = 'trip-detail.html';
+            }, 2000);
+        }, 1000);
+    });
+
+    // Quick reply chips
+    const quickReplyChips = document.querySelectorAll('.quick-reply-chip');
+    quickReplyChips.forEach(btn => {
+        btn.addEventListener('click', function() {
+            messageInput.value = this.textContent.trim();
+            messageInput.focus();
+        });
+    });
+
+    // Suggestion chips
+    const suggestionChips = document.querySelectorAll('.suggestion-chip');
+    suggestionChips.forEach(btn => {
+        btn.addEventListener('click', function() {
+            messageInput.value = this.textContent.trim();
+            messageInput.focus();
+        });
+    });
+
+    // Menu dropdown
+    menuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!menuDropdown.contains(e.target) && !menuBtn.contains(e.target)) {
+            menuDropdown.classList.add('hidden');
+        }
+    });
+
+    // Navigation
+    backHomeBtn.addEventListener('click', () => window.location.href = 'home.html');
+    settingsLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'profile.html';
+    });
+    newChatBtn.addEventListener('click', () => location.reload());
+
+    // Initial scroll
+    scrollToBottom();
+});
+</script>
+
+</body>
+</html>

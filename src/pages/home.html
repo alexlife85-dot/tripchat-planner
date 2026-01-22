@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TripChat Planner - Dashboard principale per pianificare i tuoi viaggi">
+    <title>Home - TripChat Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = {autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar {display: none;}
+        body {font-family: 'Inter', sans-serif;}
+        .focus-ring:focus {
+            outline: 3px solid rgba(79, 70, 229, 0.5);
+            outline-offset: 2px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 min-h-screen">
+
+<!-- Banner offline -->
+<div id="offline-banner" class="hidden bg-amber-50 border-b border-amber-200 px-6 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center">
+            <i class="fa-solid fa-wifi-slash text-amber-600 text-sm mr-2"></i>
+            <span class="text-sm text-amber-800 font-medium">Offline</span>
+        </div>
+        <div class="bg-amber-100 px-3 py-1 rounded-full">
+            <span class="text-xs text-amber-800 font-semibold" id="pending-changes">0 modifiche in coda</span>
+        </div>
+    </div>
+</div>
+
+<!-- Header -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-comments text-white"></i>
+                </div>
+                <span class="text-xl font-bold text-gray-900">TripChat Planner</span>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="relative hidden md:block">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" 
+                           id="search-input"
+                           placeholder="Cerca destinazioni, attività..." 
+                           class="focus-ring w-80 pl-11 pr-4 py-2.5 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                </div>
+                <button id="notifications-btn" class="relative focus-ring rounded-lg p-2" aria-label="Notifiche">
+                    <i class="fa-solid fa-bell text-gray-600 text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">2</span>
+                </button>
+                <button id="profile-btn" class="focus-ring rounded-full" aria-label="Profilo">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                         alt="Profilo utente" 
+                         class="w-10 h-10 rounded-full border-2 border-primary cursor-pointer">
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main content -->
+<main class="max-w-7xl mx-auto px-6 py-12">
+
+    <!-- Hero section -->
+    <section class="mb-16">
+        <div class="bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-3xl p-12 text-white text-center">
+            <h1 class="text-4xl font-bold mb-4">Inizia a pianificare ora</h1>
+            <p class="text-lg text-indigo-100 mb-8 max-w-2xl mx-auto">Descrivi il tuo viaggio ideale e ottieni subito una bozza personalizzata</p>
+            <div class="flex justify-center gap-4 flex-wrap">
+                <button id="create-trip-btn" class="focus-ring bg-white text-primary font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all">
+                    <i class="fa-solid fa-plus-circle mr-2"></i>
+                    Crea nuovo viaggio
+                </button>
+                <button id="import-trip-btn" class="focus-ring bg-transparent border-2 border-white/40 text-white font-semibold py-4 px-8 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fa-solid fa-file-import mr-2"></i>
+                    Importa itinerario
+                </button>
+            </div>
+            <div class="mt-8 text-sm text-indigo-100">
+                <a href="#" class="underline hover:text-white mr-4">Termini di servizio</a>
+                <a href="#" class="underline hover:text-white">Privacy</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features grid -->
+    <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8">Funzionalità principali</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <a href="chat.html" class="focus-ring bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary hover:shadow-lg transition-all group">
+                <div class="w-14 h-14 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-comments text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Chat di pianificazione</h3>
+                <p class="text-gray-600 text-sm">Parla naturalmente e descrivi il viaggio che desideri</p>
+            </a>
+
+            <a href="chat.html" class="focus-ring bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary hover:shadow-lg transition-all group">
+                <div class="w-14 h-14 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-wand-magic-sparkles text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Itinerari intelligenti</h3>
+                <p class="text-gray-600 text-sm">Piani su misura basati su preferenze e meteo</p>
+            </a>
+
+            <a href="trips.html" class="focus-ring bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary hover:shadow-lg transition-all group">
+                <div class="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-gem text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Hidden Spots</h3>
+                <p class="text-gray-600 text-sm">Scopri esperienze autentiche e poco conosciute</p>
+            </a>
+
+            <a href="trip-detail.html" class="focus-ring bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary hover:shadow-lg transition-all group">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-map text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Mappa interattiva</h3>
+                <p class="text-gray-600 text-sm">Visualizza tappe e spostamenti in un colpo d'occhio</p>
+            </a>
+
+            <a href="profile.html" class="focus-ring bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary hover:shadow-lg transition-all group">
+                <div class="w-14 h-14 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-user-circle text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Il mio profilo</h3>
+                <p class="text-gray-600 text-sm">Gestisci preferenze, stile di viaggio e consensi</p>
+            </a>
+
+            <a href="trips.html" class="focus-ring bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary hover:shadow-lg transition-all group">
+                <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-teal-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-suitcase text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">I miei viaggi</h3>
+                <p class="text-gray-600 text-sm">Monitora viaggi in corso, in arrivo e da iniziare</p>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- Quick stats -->
+    <section class="mb-16">
+        <div class="bg-white rounded-2xl p-8 border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Panoramica rapida</h2>
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-primary mb-2">2</div>
+                    <p class="text-sm text-gray-600">Viaggi attivi</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-teal-600 mb-2">13</div>
+                    <p class="text-sm text-gray-600">Tappe pianificate</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-amber-600 mb-2">€1,450</div>
+                    <p class="text-sm text-gray-600">Budget totale</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-purple-600 mb-2">8</div>
+                    <p class="text-sm text-gray-600">Gems salvate</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-white border-t border-gray-200 mt-16">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-comments text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-gray-900">TripChat Planner</span>
+            </div>
+            <div class="flex items-center space-x-6 text-sm text-gray-600">
+                <button id="language-btn" class="hover:text-primary focus-ring rounded px-2 py-1">Lingua: it-IT</button>
+                <button id="currency-btn" class="hover:text-primary focus-ring rounded px-2 py-1">Valuta: EUR</button>
+                <a href="#" class="hover:text-primary">Assistenza</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Notifications dropdown (hidden by default) -->
+<div id="notifications-dropdown" class="hidden fixed top-20 right-6 w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50">
+    <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900">Notifiche</h3>
+            <button id="close-notifications" class="text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div class="flex items-start space-x-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer">
+                <div class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-plane text-primary"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">Weekend a Parigi confermato</p>
+                    <p class="text-xs text-gray-500 mt-1">2 ore fa</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer">
+                <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-sparkles text-teal-600"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">Nuovi suggerimenti disponibili</p>
+                    <p class="text-xs text-gray-500 mt-1">5 ore fa</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    const createTripBtn = document.getElementById('create-trip-btn');
+    const importTripBtn = document.getElementById('import-trip-btn');
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationsDropdown = document.getElementById('notifications-dropdown');
+    const closeNotifications = document.getElementById('close-notifications');
+    const profileBtn = document.getElementById('profile-btn');
+    const searchInput = document.getElementById('search-input');
+    const offlineBanner = document.getElementById('offline-banner');
+    const pendingChanges = document.getElementById('pending-changes');
+
+    // Check online status
+    function checkOnlineStatus() {
+        if (!navigator.onLine) {
+            offlineBanner.classList.remove('hidden');
+        } else {
+            offlineBanner.classList.add('hidden');
+        }
+    }
+
+    window.addEventListener('online', checkOnlineStatus);
+    window.addEventListener('offline', checkOnlineStatus);
+    checkOnlineStatus();
+
+    // Create trip button
+    createTripBtn.addEventListener('click', function() {
+        window.location.href = 'chat.html';
+    });
+
+    // Import trip button
+    importTripBtn.addEventListener('click', function() {
+        console.log('Importa itinerario');
+        // TODO: Implementare modal di import
+    });
+
+    // Notifications
+    notificationsBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        notificationsDropdown.classList.toggle('hidden');
+    });
+
+    closeNotifications.addEventListener('click', function() {
+        notificationsDropdown.classList.add('hidden');
+    });
+
+    // Close notifications when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!notificationsDropdown.contains(e.target) && !notificationsBtn.contains(e.target)) {
+            notificationsDropdown.classList.add('hidden');
+        }
+    });
+
+    // Profile button
+    profileBtn.addEventListener('click', function() {
+        window.location.href = 'profile.html';
+    });
+
+    // Search input
+    searchInput.addEventListener('input', function(e) {
+        const query = e.target.value;
+        if (query.length >= 3) {
+            console.log('Ricerca:', query);
+            // TODO: Implementare ricerca
+        }
+    });
+
+    // Language and currency buttons
+    document.getElementById('language-btn').addEventListener('click', function() {
+        console.log('Cambio lingua');
+        // TODO: Implementare selector lingua
+    });
+
+    document.getElementById('currency-btn').addEventListener('click', function() {
+        console.log('Cambio valuta');
+        // TODO: Implementare selector valuta
+    });
+
+    // Mock pending changes for offline mode
+    if (!navigator.onLine) {
+        const mockChanges = 3;
+        pendingChanges.textContent = `${mockChanges} modifiche in coda`;
+    }
+});
+</script>
+
+</body>
+</html>

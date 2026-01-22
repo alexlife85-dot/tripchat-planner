@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TripChat Planner - Tutti i tuoi viaggi organizzati">
+    <title>Tutti i viaggi - TripChat Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = {autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { display: none;}
+        body { font-family: 'Inter', sans-serif; }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        .chip-selected {
+            background: linear-gradient(135deg, #4F46E5, #06B6D4);
+            color: white;
+        }
+        .trip-image-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 60%);
+        }
+        .focus-ring:focus {
+            outline: 3px solid rgba(79, 70, 229, 0.5);
+            outline-offset: 2px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+
+<!-- Toast notification -->
+<div id="toast-notification" class="fixed top-4 right-4 z-50 hidden">
+    <div class="bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center space-x-2">
+        <i class="fa-solid fa-check-circle"></i>
+        <span>Sincronizzato</span>
+    </div>
+</div>
+
+<!-- Offline badge -->
+<div id="offline-badge" class="fixed top-4 left-4 z-50 bg-gray-800 text-white px-3 py-1 rounded-full text-xs hidden">
+    <i class="fa-solid fa-wifi-slash mr-1"></i>
+    Offline
+</div>
+
+<!-- Sync queue -->
+<div id="sync-queue" class="fixed top-16 left-4 z-50 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs hidden">
+    <span id="pending-count">3</span> modifiche in coda
+</div>
+
+<div class="w-full min-h-screen overflow-hidden">
+
+<!-- Header -->
+<header class="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-40">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <button id="back-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Indietro">
+                <i class="fa-solid fa-arrow-left text-gray-700"></i>
+            </button>
+            <h1 class="text-xl font-bold text-gray-900">Tutti i viaggi</h1>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button id="search-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Cerca">
+                <i class="fa-solid fa-search text-gray-700"></i>
+            </button>
+            <button id="filter-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Filtra">
+                <i class="fa-solid fa-filter text-gray-700"></i>
+            </button>
+            <button id="global-menu-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Menu">
+                <i class="fa-solid fa-ellipsis-vertical text-gray-700"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Search and filters section -->
+<div class="bg-white border-b border-gray-100 px-6 py-3">
+    <div id="search-box" class="mb-3 hidden">
+        <div class="relative">
+            <input type="text" 
+                   id="search-input"
+                   placeholder="Città, persone, date..." 
+                   class="focus-ring w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+            <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
+        </div>
+    </div>
+    <div id="filter-chips" class="flex space-x-2 overflow-x-auto pb-1">
+        <button class="filter-chip chip-selected px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap" data-filter="all">Tutti</button>
+        <button class="filter-chip bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200" data-filter="ongoing">In corso</button>
+        <button class="filter-chip bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200" data-filter="upcoming">In arrivo</button>
+        <button class="filter-chip bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200" data-filter="past">Passati</button>
+    </div>
+</div>
+
+<!-- Trips content -->
+<div id="trips-content" class="overflow-y-auto px-6 py-4" style="max-height: calc(100vh - 180px);">
+
+<!-- Ongoing section -->
+<div id="ongoing-section" class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">In corso</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="trip-card card-hover bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer" data-trip-id="1">
+            <div class="relative h-48 overflow-hidden">
+                <img class="w-full h-full object-cover" 
+                     src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&h=400&fit=crop" 
+                     alt="Tokyo cityscape" />
+                <div class="absolute inset-0 trip-image-overlay"></div>
+                <div class="absolute top-3 right-3">
+                    <button class="trip-menu-btn focus-ring p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full" data-trip-id="1" aria-label="Menu viaggio">
+                        <i class="fa-solid fa-ellipsis text-gray-700"></i>
+                    </button>
+                </div>
+                <div class="absolute bottom-3 left-3 right-3">
+                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">In corso</span>
+                </div>
+            </div>
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-gray-900 mb-1">Giappone d'autunno</h3>
+                <p class="text-sm text-gray-600 mb-3">10-20 ott 2024</p>
+                
+                <div class="flex items-center space-x-2 mb-3 text-sm text-gray-600">
+                    <i class="fa-solid fa-route text-blue-500"></i>
+                    <span>Milano → Tokyo → Kyoto</span>
+                </div>
+                
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-1 text-sm text-gray-600">
+                            <i class="fa-solid fa-users"></i>
+                            <span>2</span>
+                        </div>
+                        <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">€€€</span>
+                        <i class="fa-solid fa-check-circle text-green-500"></i>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button class="action-btn focus-ring p-2 hover:bg-blue-50 rounded-full" title="Apri mappa" aria-label="Mappa">
+                            <i class="fa-solid fa-map text-blue-600"></i>
+                        </button>
+                        <button class="action-btn focus-ring p-2 hover:bg-green-50 rounded-full" title="Chat" aria-label="Chat">
+                            <i class="fa-solid fa-comments text-green-600"></i>
+                        </button>
+                        <button class="action-btn focus-ring p-2 hover:bg-purple-50 rounded-full" title="Condividi" aria-label="Condividi">
+                            <i class="fa-solid fa-share text-purple-600"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming section -->
+<div id="upcoming-section" class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Prossimi 90 giorni</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="trip-card card-hover bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer" data-trip-id="2">
+            <div class="relative h-48 overflow-hidden">
+                <img class="w-full h-full object-cover" 
+                     src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&h=400&fit=crop" 
+                     alt="Parigi Torre Eiffel" />
+                <div class="absolute inset-0 trip-image-overlay"></div>
+                <div class="absolute top-3 right-3">
+                    <button class="trip-menu-btn focus-ring p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full" data-trip-id="2" aria-label="Menu viaggio">
+                        <i class="fa-solid fa-ellipsis text-gray-700"></i>
+                    </button>
+                </div>
+                <div class="absolute bottom-3 left-3 right-3 flex items-center space-x-2">
+                    <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">In arrivo</span>
+                </div>
+            </div>
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-gray-900 mb-1">Weekend a Parigi</h3>
+                <p class="text-sm text-gray-600 mb-3">15-17 nov 2024</p>
+                
+                <div class="flex items-center space-x-2 mb-3 text-sm text-gray-600">
+                    <i class="fa-solid fa-route text-blue-500"></i>
+                    <span>Milano → Parigi</span>
+                </div>
+                
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-1 text-sm text-gray-600">
+                            <i class="fa-solid fa-users"></i>
+                            <span>4</span>
+                        </div>
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">€€</span>
+                        <i class="fa-solid fa-exclamation-triangle text-red-500" title="Attenzione"></i>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button class="action-btn focus-ring p-2 hover:bg-blue-50 rounded-full" title="Apri mappa" aria-label="Mappa">
+                            <i class="fa-solid fa-map text-blue-600"></i>
+                        </button>
+                        <button class="action-btn focus-ring p-2 hover:bg-green-50 rounded-full" title="Chat" aria-label="Chat">
+                            <i class="fa-solid fa-comments text-green-600"></i>
+                        </button>
+                        <button class="action-btn focus-ring p-2 hover:bg-purple-50 rounded-full" title="Condividi" aria-label="Condividi">
+                            <i class="fa-solid fa-share text-purple-600"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="trip-card card-hover bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer" data-trip-id="3">
+            <div class="relative h-48 overflow-hidden">
+                <img class="w-full h-full object-cover" 
+                     src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=600&h=400&fit=crop" 
+                     alt="Toscana colline" />
+                <div class="absolute inset-0 trip-image-overlay"></div>
+                <div class="absolute top-3 right-3">
+                    <button class="trip-menu-btn focus-ring p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full" data-trip-id="3" aria-label="Menu viaggio">
+                        <i class="fa-solid fa-ellipsis text-gray-700"></i>
+                    </button>
+                </div>
+                <div class="absolute bottom-3 left-3 right-3 flex items-center space-x-2">
+                    <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">In arrivo</span>
+                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">Conflitto</span>
+                </div>
+            </div>
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-gray-900 mb-1">Road trip Toscana</h3>
+                <p class="text-sm text-gray-600 mb-3">1-8 dic 2024</p>
+                
+                <div class="flex items-center space-x-2 mb-3 text-sm text-gray-600">
+                    <i class="fa-solid fa-route text-blue-500"></i>
+                    <span>Firenze → Siena</span>
+                </div>
+                
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-1 text-sm text-gray-600">
+                            <i class="fa-solid fa-users"></i>
+                            <span>2</span>
+                        </div>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">€</span>
+                        <i class="fa-solid fa-check-circle text-green-500"></i>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button class="action-btn focus-ring p-2 hover:bg-blue-50 rounded-full" title="Apri mappa" aria-label="Mappa">
+                            <i class="fa-solid fa-map text-blue-600"></i>
+                        </button>
+                        <button class="action-btn focus-ring p-2 hover:bg-green-50 rounded-full" title="Chat" aria-label="Chat">
+                            <i class="fa-solid fa-comments text-green-600"></i>
+                        </button>
+                        <button class="action-btn focus-ring p-2 hover:bg-purple-50 rounded-full" title="Condividi" aria-label="Condividi">
+                            <i class="fa-solid fa-share text-purple-600"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Past section -->
+<div id="past-section" class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Passati (ultimo anno)</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="trip-card card-hover bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer" data-trip-id="4">
+            <div class="relative h-48 overflow-hidden">
+                <img class="w-full h-full object-cover" 
+                     src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=600&h=400&fit=crop" 
+                     alt="Santorini Grecia" />
+                <div class="absolute inset-0 trip-image-overlay"></div>
+                <div class="absolute top-3 right-3">
+                    <button class="trip-menu-btn focus-ring p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full" data-trip-id="4" aria-label="Menu viaggio">
+                        <i class="fa-solid fa-ellipsis text-gray-700"></i>
+                    </button>
+                </div>
+                <div class="absolute bottom-3 left-3 right-3">
+                    <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-medium">Passato</span>
+                </div>
+            </div>
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-gray-900 mb-1">Estate in Grecia</h3>
+                <p class="text-sm text-gray-600 mb-3">20-30 ago 2024</p>
+                
+                <div class="flex items-center space-x-2 mb-3 text-sm text-gray-600">
+                    <i class="fa-solid fa-route text-blue-500"></i>
+                    <span>Atene → Santorini → Mykonos</span>
+                </div>
+                
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-1 text-sm text-gray-600">
+                            <i class="fa-solid fa-users"></i>
+                            <span>2</span>
+                        </div>
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">€€</span>
+                        <i class="fa-solid fa-check-circle text-green-500"></i>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button class="action-btn focus-ring p-2 hover:bg-blue-50 rounded-full" title="Apri mappa" aria-label="Mappa">
+                            <i class="fa-solid fa-map text-blue-600"></i>
+                        </button>
+                        <button class="action-btn focus-ring p-2 hover:bg-green-50 rounded-full" title="Chat" aria-label="Chat">
+                            <i class="fa-solid fa-comments text-green-600"></i>
+                        </button>
+                        <button class="action-btn focus-ring p-2 hover:bg-purple-50 rounded-full" title="Condividi" aria-label="Condividi">
+                            <i class="fa-solid fa-share text-purple-600"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Empty state -->
+<div id="empty-state" class="hidden flex flex-col items-center justify-center py-16 px-4">
+    <div class="w-48 h-48 mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+        <i class="fa-solid fa-suitcase text-gray-400 text-6xl"></i>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">Non hai ancora creato viaggi</h3>
+    <p class="text-gray-600 text-center mb-6">Inizia a pianificare la tua prossima avventura</p>
+    <button id="create-trip-empty" class="focus-ring bg-primary hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+        Crea nuovo viaggio
+    </button>
+</div>
+
+</div>
+
+</div>
+
+<!-- Filter panel -->
+<div id="filter-panel" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold">Filtri</h2>
+                <button id="close-filter-panel" class="focus-ring p-2 hover:bg-gray-100 rounded-full" aria-label="Chiudi filtri">
+                    <i class="fa-solid fa-times text-gray-500"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 space-y-6 overflow-y-auto h-full pb-32">
+            <div>
+                <h3 class="font-medium text-gray-900 mb-3">Stato</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus-ring">
+                        <span class="ml-2 text-sm">In corso</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus-ring">
+                        <span class="ml-2 text-sm">In arrivo</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus-ring">
+                        <span class="ml-2 text-sm">Passati</span>
+                    </label>
+                </div>
+            </div>
+            <div>
+                <h3 class="font-medium text-gray-900 mb-3">Budget</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus-ring">
+                        <span class="ml-2 text-sm">€ (Economico)</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus-ring">
+                        <span class="ml-2 text-sm">€€ (Medio)</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus-ring">
+                        <span class="ml-2 text-sm">€€€ (Alto)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
+            <div class="flex space-x-3">
+                <button id="reset-filters" class="focus-ring flex-1 py-2 px-4 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">
+                    Reimposta
+                </button>
+                <button id="apply-filters" class="focus-ring flex-1 py-2 px-4 bg-primary text-white rounded-xl hover:bg-indigo-700">
+                    Applica
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Global menu -->
+<div id="global-menu" class="fixed top-16 right-4 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 hidden">
+    <button id="menu-create-trip" class="focus-ring w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center space-x-3">
+        <i class="fa-solid fa-plus text-primary"></i>
+        <span>Crea nuovo viaggio</span>
+    </button>
+    <button id="menu-import" class="focus-ring w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center space-x-3">
+        <i class="fa-solid fa-file-import text-gray-600"></i>
+        <span>Importa itinerario</span>
+    </button>
+    <button id="menu-archive" class="focus-ring w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center space-x-3">
+        <i class="fa-solid fa-archive text-gray-600"></i>
+        <span>Mostra archivio</span>
+    </button>
+    <button id="menu-export" class="focus-ring w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center space-x-3">
+        <i class="fa-solid fa-download text-gray-600"></i>
+        <span>Esporta elenco</span>
+    </button>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    const searchBtn = document.getElementById('search-btn');
+    const searchBox = document.getElementById('search-box');
+    const searchInput = document.getElementById('search-input');
+    const filterBtn = document.getElementById('filter-btn');
+    const filterPanel = document.getElementById('filter-panel');
+    const closeFilterPanel = document.getElementById('close-filter-panel');
+    const globalMenuBtn = document.getElementById('global-menu-btn');
+    const globalMenu = document.getElementById('global-menu');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const tripCards = document.querySelectorAll('.trip-card');
+    const tripMenuBtns = document.querySelectorAll('.trip-menu-btn');
+    const backBtn = document.getElementById('back-btn');
+    const offlineBadge = document.getElementById('offline-badge');
+    const syncQueue = document.getElementById('sync-queue');
+    const toastNotification = document.getElementById('toast-notification');
+
+    // Check online status
+    function checkOnlineStatus() {
+        if (!navigator.onLine) {
+            offlineBadge.classList.remove('hidden');
+        } else {
+            offlineBadge.classList.add('hidden');
+        }
+    }
+
+    window.addEventListener('online', checkOnlineStatus);
+    window.addEventListener('offline', checkOnlineStatus);
+    checkOnlineStatus();
+
+    // Search toggle
+    searchBtn.addEventListener('click', function() {
+        searchBox.classList.toggle('hidden');
+        if (!searchBox.classList.contains('hidden')) {
+            searchInput.focus();
+        }
+    });
+
+    // Filter panel
+    filterBtn.addEventListener('click', () => filterPanel.classList.remove('hidden'));
+    closeFilterPanel.addEventListener('click', () => filterPanel.classList.add('hidden'));
+    filterPanel.addEventListener('click', (e) => {
+        if (e.target === filterPanel) filterPanel.classList.add('hidden');
+    });
+
+    // Apply filters
+    document.getElementById('apply-filters').addEventListener('click', () => {
+        filterPanel.classList.add('hidden');
+        console.log('Filtri applicati');
+    });
+
+    document.getElementById('reset-filters').addEventListener('click', () => {
+        console.log('Filtri reimpostati');
+    });
+
+    // Global menu
+    globalMenuBtn.addEventListener('click', () => globalMenu.classList.toggle('hidden'));
+    
+    document.addEventListener('click', (e) => {
+        if (!globalMenuBtn.contains(e.target) && !globalMenu.contains(e.target)) {
+            globalMenu.classList.add('hidden');
+        }
+    });
+
+    // Menu actions
+    document.getElementById('menu-create-trip').addEventListener('click', () => window.location.href = 'chat.html');
+    document.getElementById('menu-import').addEventListener('click', () => console.log('Importa itinerario'));
+    document.getElementById('menu-archive').addEventListener('click', () => console.log('Mostra archivio'));
+    document.getElementById('menu-export').addEventListener('click', () => console.log('Esporta elenco'));
+
+    // Filter chips
+    filterChips.forEach(chip => {
+        chip.addEventListener('click', function() {
+            filterChips.forEach(c => {
+                c.classList.remove('chip-selected');
+                c.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            this.classList.add('chip-selected');
+            this.classList.remove('bg-gray-100', 'text-gray-700');
+            
+            filterTrips(this.dataset.filter);
+        });
+    });
+
+    // Filter trips
+    function filterTrips(filter) {
+        const sections = {
+            'ongoing': document.getElementById('ongoing-section'),
+            'upcoming': document.getElementById('upcoming-section'),
+            'past': document.getElementById('past-section')
+        };
+        
+        Object.values(sections).forEach(section => section.style.display = 'none');
+        
+        if (filter === 'all') {
+            Object.values(sections).forEach(section => section.style.display = 'block');
+        } else {
+            sections[filter].style.display = 'block';
+        }
+    }
+
+    // Trip cards
+    tripCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('.trip-menu-btn') && !e.target.closest('.action-btn')) {
+                window.location.href = 'trip-detail.html?id=' + this.dataset.tripId;
+            }
+        });
+    });
+
+    // Trip menu buttons
+    tripMenuBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            console.log('Menu viaggio:', this.dataset.tripId);
+        });
+    });
+
+    // Action buttons
+    const actionBtns = document.querySelectorAll('.action-btn');
+    actionBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-map')) {
+                window.location.href = 'trip-detail.html';
+            } else if (icon.classList.contains('fa-comments')) {
+                window.location.href = 'chat.html';
+            } else if (icon.classList.contains('fa-share')) {
+                console.log('Condividi viaggio');
+            }
+        });
+    });
+
+    // Back button
+    backBtn.addEventListener('click', () => window.location.href = 'home.html');
+
+    // Empty state create button
+    const createTripEmpty = document.getElementById('create-trip-empty');
+    if (createTripEmpty) {
+        createTripEmpty.addEventListener('click', () => window.location.href = 'chat.html');
+    }
+
+    // Mock sync simulation
+    setTimeout(() => {
+        syncQueue.classList.remove('hidden');
+    }, 2000);
+
+    setTimeout(() => {
+        syncQueue.classList.add('hidden');
+        toastNotification.classList.remove('hidden');
+        setTimeout(() => {
+            toastNotification.classList.add('hidden');
+        }, 3000);
+    }, 5000);
+});
+</script>
+
+</body>
+</html>

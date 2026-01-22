@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TripChat Planner - Dettaglio viaggio con itinerario giornaliero">
+    <title>Dettaglio Viaggio - TripChat Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = {autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        .draggable {
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+        
+        .dragging {
+            opacity: 0.7;
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .drop-zone {
+            border: 2px dashed #4F46E5;
+            background: rgba(79, 70, 229, 0.05);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .conflict {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { background-color: rgb(254, 226, 226); }
+            50% { background-color: rgb(248, 113, 113); }
+        }
+        
+        .map-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+        
+        .route-line {
+            position: absolute;
+            height: 4px;
+            transform-origin: left center;
+        }
+        
+        .route-icon {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        @keyframes markerPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        .marker-active {
+            animation: markerPulse 2s infinite;
+        }
+        
+        .focus-ring:focus {
+            outline: 3px solid rgba(79, 70, 229, 0.5);
+            outline-offset: 2px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+
+<div class="flex h-screen">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-80 bg-white border-r border-gray-200 flex flex-col">
+        
+        <div id="sidebar-header" class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-bold text-gray-900">TripChat</h1>
+                <button id="new-trip-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Nuovo viaggio">
+                    <i class="fa-solid fa-plus text-gray-600"></i>
+                </button>
+            </div>
+            <div class="relative">
+                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" 
+                       id="sidebar-search"
+                       placeholder="Cerca viaggi..." 
+                       class="focus-ring w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+        </div>
+
+        <div id="trip-list" class="flex-1 overflow-y-auto p-4 space-y-2">
+            <div class="trip-list-item p-3 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 cursor-pointer transition-colors" data-trip-id="1">
+                <div class="flex items-start justify-between mb-1">
+                    <h3 class="font-semibold text-gray-900 text-sm">Tokyo & Kyoto</h3>
+                    <span class="text-xs text-gray-500">Oggi</span>
+                </div>
+                <p class="text-xs text-gray-600">10-20 ottobre, 2 persone</p>
+                <div class="flex items-center mt-2">
+                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">In corso</span>
+                </div>
+            </div>
+            
+            <div class="trip-list-item p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors" data-trip-id="2">
+                <div class="flex items-start justify-between mb-1">
+                    <h3 class="font-semibold text-gray-900 text-sm">Weekend a Parigi</h3>
+                    <span class="text-xs text-gray-500">2 giorni fa</span>
+                </div>
+                <p class="text-xs text-gray-600">15-17 novembre, 4 persone</p>
+                <div class="flex items-center mt-2">
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">In arrivo</span>
+                </div>
+            </div>
+            
+            <div class="trip-list-item p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors" data-trip-id="3">
+                <div class="flex items-start justify-between mb-1">
+                    <h3 class="font-semibold text-gray-900 text-sm">Road trip Toscana</h3>
+                    <span class="text-xs text-gray-500">1 settimana fa</span>
+                </div>
+                <p class="text-xs text-gray-600">1-8 dicembre, 2 persone</p>
+                <div class="flex items-center mt-2">
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">In arrivo</span>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Main content -->
+    <main id="main-content" class="flex-1 flex flex-col">
+        
+        <!-- App bar -->
+        <header id="app-bar" class="bg-white border-b border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button id="back-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Indietro">
+                        <i class="fa-solid fa-arrow-left text-gray-600"></i>
+                    </button>
+                    <h1 class="text-lg font-semibold text-gray-900">Tokyo & Kyoto</h1>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="share-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Condividi">
+                        <i class="fa-solid fa-share text-gray-600"></i>
+                    </button>
+                    <button id="menu-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Menu">
+                        <i class="fa-solid fa-ellipsis-vertical text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Trip header -->
+        <section id="trip-header" class="bg-white border-b border-gray-200 p-4">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-calendar text-primary"></i>
+                        <span class="font-semibold text-gray-900">10–20 ott 2026</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-users text-secondary"></i>
+                        <span class="text-gray-600">2 persone</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-wallet text-accent"></i>
+                        <span class="text-gray-600">€3000</span>
+                    </div>
+                </div>
+                <button id="open-chat-btn" class="focus-ring px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    Apri in Chat
+                </button>
+            </div>
+            
+            <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Milano → Tokyo → Kyoto</span>
+                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">✓ Documenti</span>
+                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">! Prenotazioni</span>
+            </div>
+        </section>
+
+        <div class="flex-1 flex overflow-hidden">
+            
+            <!-- Map section -->
+            <section id="map-section" class="w-96 bg-white border-r border-gray-200 flex flex-col">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="font-semibold text-gray-900">Mappa Itinerario</h2>
+                        <button id="expand-map-btn" class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium">Espandi</button>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="map-tab focus-ring px-3 py-1 bg-primary text-white rounded-full text-xs" data-tab="stops">Tappe</button>
+                        <button class="map-tab focus-ring px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs hover:bg-gray-200" data-tab="routes">Percorsi</button>
+                        <button class="map-tab focus-ring px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs hover:bg-gray-200" data-tab="weather">Meteo</button>
+                    </div>
+                </div>
+                
+                <div id="interactive-map" class="flex-1 relative bg-white overflow-hidden">
+                    <svg class="absolute inset-0 w-full h-full" style="background: linear-gradient(135deg, #E8F3F1 0%, #D4E9E7 100%);">
+                        <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#CBD5E1" stroke-width="0.5" opacity="0.3"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)"/>
+                        
+                        <line x1="15%" y1="25%" x2="45%" y2="30%" stroke="#4F46E5" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+                        <line x1="45%" y1="30%" x2="45%" y2="70%" stroke="#06B6D4" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+                        <line x1="45%" y1="70%" x2="85%" y2="75%" stroke="#4F46E5" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+                    </svg>
+                    
+                    <!-- Milano start -->
+                    <div class="map-marker marker-active" style="left: 15%; top: 25%;">
+                        <div class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center font-bold shadow-xl border-4 border-white">
+                            A
+                        </div>
+                        <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                            <div class="text-xs font-semibold text-gray-900">Milano</div>
+                            <div class="text-xs text-gray-500">10 ott, 08:00</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Flight info -->
+                    <div class="route-icon" style="left: 30%; top: 27.5%;">
+                        <i class="fa-solid fa-plane text-gray-600 text-sm"></i>
+                        <span class="text-xs text-gray-600 ml-1">12h 30m</span>
+                    </div>
+                    
+                    <!-- Tokyo -->
+                    <div class="map-marker" style="left: 45%; top: 30%;">
+                        <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold shadow-xl border-4 border-white">
+                            1
+                        </div>
+                        <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                            <div class="text-xs font-semibold text-gray-900">Tokyo</div>
+                            <div class="text-xs text-gray-500">10-15 ott</div>
+                            <div class="flex items-center mt-1">
+                                <i class="fa-solid fa-cloud-sun text-yellow-500 text-xs mr-1"></i>
+                                <span class="text-xs text-gray-600">22°/15°</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Train info -->
+                    <div class="route-icon" style="left: 45%; top: 50%;">
+                        <i class="fa-solid fa-train text-secondary text-sm"></i>
+                        <span class="text-xs text-gray-600 ml-1">2h 15m</span>
+                    </div>
+                    
+                    <!-- Kyoto -->
+                    <div class="map-marker" style="left: 45%; top: 70%;">
+                        <div class="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center font-bold shadow-xl border-4 border-white">
+                            2
+                        </div>
+                        <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                            <div class="text-xs font-semibold text-gray-900">Kyoto</div>
+                            <div class="text-xs text-gray-500">15-20 ott</div>
+                            <div class="flex items-center mt-1">
+                                <i class="fa-solid fa-cloud-rain text-blue-500 text-xs mr-1"></i>
+                                <span class="text-xs text-gray-600">19°/13°</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Return flight -->
+                    <div class="route-icon" style="left: 65%; top: 72.5%;">
+                        <i class="fa-solid fa-plane text-gray-600 text-sm"></i>
+                        <span class="text-xs text-gray-600 ml-1">13h 45m</span>
+                    </div>
+                    
+                    <!-- Milano end -->
+                    <div class="map-marker" style="left: 85%; top: 75%;">
+                        <div class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center font-bold shadow-xl border-4 border-white">
+                            B
+                        </div>
+                        <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                            <div class="text-xs font-semibold text-gray-900">Milano</div>
+                            <div class="text-xs text-gray-500">20 ott, 18:30</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Map controls -->
+                    <div class="absolute top-4 right-4 flex flex-col space-y-2">
+                        <button class="focus-ring w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Zoom in">
+                            <i class="fa-solid fa-plus text-gray-700"></i>
+                        </button>
+                        <button class="focus-ring w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Zoom out">
+                            <i class="fa-solid fa-minus text-gray-700"></i>
+                        </button>
+                        <button class="focus-ring w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Centra">
+                            <i class="fa-solid fa-location-crosshairs text-gray-700"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Distance info -->
+                    <div class="absolute bottom-4 left-4 bg-white rounded-lg px-3 py-2 shadow-lg">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-route text-primary"></i>
+                            <div>
+                                <div class="text-xs text-gray-600">Distanza totale</div>
+                                <div class="text-sm font-semibold text-gray-900">~19,500 km</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Itinerary section -->
+            <section id="itinerary-section" class="flex-1 flex flex-col">
+                
+                <div class="p-4 bg-white border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-semibold text-gray-900">Itinerario Giorno per Giorno</h2>
+                        <button id="add-day-btn" class="focus-ring px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs transition-colors">
+                            <i class="fa-solid fa-plus mr-1"></i>Aggiungi
+                        </button>
+                    </div>
+                </div>
+
+                <div id="itinerary-timeline" class="flex-1 overflow-y-auto">
+                    
+                    <!-- Day 1 -->
+                    <div id="day-1" class="border-b border-gray-200">
+                        <div class="day-header p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">Giorno 1 - 10 ottobre</h3>
+                                        <p class="text-sm text-gray-600">Arrivo a Tokyo • 3 attività</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-500">€180</span>
+                                    <i class="fa-solid fa-chevron-down text-gray-400 transition-transform day-arrow"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="day-content p-4 space-y-3">
+                            
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start space-x-3 flex-1">
+                                        <div class="text-sm font-medium text-gray-500">09:00</div>
+                                        <div class="flex-1">
+                                            <h4 class="font-semibold text-gray-900">Arrivo Aeroporto Narita</h4>
+                                            <p class="text-sm text-gray-600">Transfer • 60 min • €25</p>
+                                            <div class="flex items-center space-x-2 mt-2">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Transfer</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                            <i class="fa-solid fa-edit text-gray-400"></i>
+                                        </button>
+                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                            <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start space-x-3 flex-1">
+                                        <div class="text-sm font-medium text-gray-500">11:30</div>
+                                        <div class="flex-1">
+                                            <h4 class="font-semibold text-gray-900">Check-in Hotel Shibuya</h4>
+                                            <p class="text-sm text-gray-600">Alloggio • 30 min • €0</p>
+                                            <div class="flex items-center space-x-2 mt-2">
+                                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">✓ Prenotato</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                            <i class="fa-solid fa-edit text-gray-400"></i>
+                                        </button>
+                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                            <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start space-x-3 flex-1">
+                                        <div class="text-sm font-medium text-gray-500">14:00</div>
+                                        <div class="flex-1">
+                                            <h4 class="font-semibold text-gray-900">Tempio Senso-ji</h4>
+                                            <p class="text-sm text-gray-600">Visita • 120 min • €0</p>
+                                            <div class="flex items-center space-x-2 mt-2">
+                                                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Cultura</span>
+                                                <button class="text-xs text-primary hover:text-indigo-700">Prenota tour</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                            <i class="fa-solid fa-edit text-gray-400"></i>
+                                        </button>
+                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                            <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center py-4">
+                                <button class="focus-ring add-activity-btn px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                    <i class="fa-solid fa-plus mr-2"></i>Aggiungi attività
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Day 2 -->
+                    <div id="day-2" class="border-b border-gray-200">
+                        <div class="day-header p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">Giorno 2 - 11 ottobre</h3>
+                                        <p class="text-sm text-gray-600">Tokyo Centro • 4 attività</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-500">€220</span>
+                                    <i class="fa-solid fa-chevron-right text-gray-400 transition-transform day-arrow"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="day-content hidden">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Bookings section -->
+                <div id="bookings-section" class="bg-white border-t border-gray-200 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-gray-900 flex items-center">
+                            Prenotazioni
+                            <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">3 da fare</span>
+                        </h3>
+                        <button id="manage-bookings-btn" class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium">Gestisci tutto</button>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-plane text-yellow-600"></i>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">Volo Milano-Tokyo</p>
+                                    <p class="text-xs text-gray-600">10 ott • €800-1200</p>
+                                </div>
+                            </div>
+                            <button class="focus-ring px-3 py-1 bg-primary text-white rounded text-xs hover:bg-indigo-700 transition-colors">Prenota</button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid fa-bed text-green-600"></i>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">Hotel Tokyo</p>
+                                    <p class="text-xs text-gray-600">10-15 ott • ✓ Prenotato</p>
+                                </div>
+                            </div>
+                            <button class="focus-ring px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs">Codice: ABC123</button>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- Success notification -->
+<div id="success-notification" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg fade-in hidden">
+    <i class="fa-solid fa-check-circle mr-2"></i>
+    <span id="notification-text">Operazione completata</span>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+    // Day toggle functionality
+    const dayHeaders = document.querySelectorAll('.day-header');
+    
+    dayHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const arrow = this.querySelector('.day-arrow');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.classList.remove('fa-chevron-right');
+                arrow.classList.add('fa-chevron-down');
+            } else {
+                content.classList.add('hidden');
+                arrow.classList.remove('fa-chevron-down');
+                arrow.classList.add('fa-chevron-right');
+            }
+        });
+    });
+
+    // Drag and drop for activities
+    const draggables = document.querySelectorAll('.draggable');
+    let draggedElement = null;
+
+    draggables.forEach(element => {
+        element.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        element.addEventListener('dragend', function(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('drop-zone');
+            });
+        });
+
+        element.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        element.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (draggedElement && draggedElement !== this) {
+                const parent = this.parentNode;
+                const nextSibling = this.nextElementSibling;
+                parent.insertBefore(draggedElement, nextSibling);
+                
+                showNotification('Attività spostata con successo');
+            }
+        });
+
+        element.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            if (draggedElement !== this) {
+                this.classList.add('drop-zone');
+            }
+        });
+
+        element.addEventListener('dragleave', function(e) {
+            this.classList.remove('drop-zone');
+        });
+    });
+
+    // Notification function
+    function showNotification(message) {
+        const notification = document.getElementById('success-notification');
+        const notificationText = document.getElementById('notification-text');
+        notificationText.textContent = message;
+        notification.classList.remove('hidden');
+        
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 3000);
+    }
+
+    // Map tabs
+    const mapTabs = document.querySelectorAll('.map-tab');
+    mapTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            mapTabs.forEach(t => {
+                t.classList.remove('bg-primary', 'text-white');
+                t.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            this.classList.add('bg-primary', 'text-white');
+            this.classList.remove('bg-gray-100', 'text-gray-700');
+        });
+    });
+
+    // Trip list navigation
+    const tripListItems = document.querySelectorAll('.trip-list-item');
+    tripListItems.forEach(item => {
+        item.addEventListener('click', function() {
+            console.log('Loading trip:', this.dataset.tripId);
+        });
+    });
+
+    // Navigation buttons
+    document.getElementById('back-btn').addEventListener('click', () => {
+        window.location.href = 'trips.html';
+    });
+
+    document.getElementById('open-chat-btn').addEventListener('click', () => {
+        window.location.href = 'chat.html';
+    });
+
+    document.getElementById('new-trip-btn').addEventListener('click', () => {
+        window.location.href = 'chat.html';
+    });
+
+    document.getElementById('share-btn').addEventListener('click', () => {
+        console.log('Condividi viaggio');
+        showNotification('Link condivisione copiato');
+    });
+
+    document.getElementById('menu-btn').addEventListener('click', () => {
+        console.log('Apri menu');
+    });
+
+    document.getElementById('expand-map-btn').addEventListener('click', () => {
+        console.log('Espandi mappa');
+    });
+
+    document.getElementById('add-day-btn').addEventListener('click', () => {
+        console.log('Aggiungi giorno');
+    });
+
+    document.getElementById('manage-bookings-btn').addEventListener('click', () => {
+        console.log('Gestisci prenotazioni');
+    });
+
+    // Add activity buttons
+    const addActivityBtns = document.querySelectorAll('.add-activity-btn');
+    addActivityBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            console.log('Aggiungi attività');
+            showNotification('Nuova attività aggiunta');
+        });
+    });
+
+    // Sidebar search
+    document.getElementById('sidebar-search').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        tripListItems.forEach(item => {
+            const title = item.querySelector('h3').textContent.toLowerCase();
+            if (title.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Initialize: open first day
+    document.querySelector('#day-1 .day-content').classList.remove('hidden');
+    document.querySelector('#day-1 .day-arrow').classList.remove('fa-chevron-right');
+    document.querySelector('#day-1 .day-arrow').classList.add('fa-chevron-down');
+});
+</script>
+
+</body>
+</html>

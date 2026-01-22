@@ -1,0 +1,139 @@
+<!-- Card Activity Component -->
+<!-- Componente riutilizzabile per la visualizzazione di un'attività in timeline -->
+
+<article class="activity-card" data-activity-id="{ACTIVITY_ID}">
+    
+    <!-- Orario e durata -->
+    <div class="activity-time">
+        <time class="time-start">{START_TIME}</time>
+        <span class="time-duration">{DURATION}</span>
+    </div>
+
+    <!-- Contenuto attività -->
+    <div class="activity-content">
+        
+        <!-- Icona tipologia -->
+        <div class="activity-icon icon-{ACTIVITY_TYPE}"></div>
+
+        <!-- Dettagli -->
+        <div class="activity-details">
+            
+            <!-- Titolo -->
+            <h3 class="activity-title">{ACTIVITY_TITLE}</h3>
+
+            <!-- Descrizione -->
+            <p class="activity-description">{ACTIVITY_DESCRIPTION}</p>
+
+            <!-- Metadata -->
+            <div class="activity-meta">
+                <span class="meta-item">
+                    <span class="icon-location"></span>
+                    {LOCATION}
+                </span>
+                
+                <!-- Costo (opzionale) -->
+                {IF_HAS_COST}
+                <span class="meta-item">
+                    <span class="icon-wallet"></span>
+                    € {COST}
+                </span>
+                {/IF_HAS_COST}
+
+                <!-- Rating (opzionale) -->
+                {IF_HAS_RATING}
+                <span class="meta-item rating">
+                    <span class="icon-star"></span>
+                    {RATING}
+                </span>
+                {/IF_HAS_RATING}
+
+                <!-- Info aggiuntive (opzionale) -->
+                {IF_HAS_INFO}
+                <span class="meta-item">
+                    <span class="icon-info"></span>
+                    {ADDITIONAL_INFO}
+                </span>
+                {/IF_HAS_INFO}
+
+                <!-- Badge AI (se suggerita dall'AI) -->
+                {IF_AI_SUGGESTED}
+                <span class="meta-item highlight">
+                    <span class="icon-ai"></span>
+                    Suggerito dall'AI
+                </span>
+                {/IF_AI_SUGGESTED}
+            </div>
+
+            <!-- Tags (opzionale) -->
+            {IF_HAS_TAGS}
+            <div class="activity-tags">
+                {FOREACH_TAG}
+                <span class="tag">{TAG_NAME}</span>
+                {/FOREACH_TAG}
+            </div>
+            {/IF_HAS_TAGS}
+
+            <!-- Note (opzionale) -->
+            {IF_HAS_NOTES}
+            <div class="activity-notes">
+                <span class="icon-note"></span>
+                <p>{NOTES}</p>
+            </div>
+            {/IF_HAS_NOTES}
+
+            <!-- Azioni -->
+            <div class="activity-actions">
+                <button class="btn btn-sm btn-icon" onclick="editActivity('{ACTIVITY_ID}')" aria-label="Modifica attività">
+                    <span class="icon-edit"></span>
+                </button>
+                
+                {IF_BOOKABLE}
+                <button class="btn btn-sm btn-primary" onclick="bookActivity('{ACTIVITY_ID}')">
+                    Prenota
+                </button>
+                {/IF_BOOKABLE}
+                
+                {IF_HAS_MORE_INFO}
+                <button class="btn btn-sm btn-icon" onclick="viewActivityDetails('{ACTIVITY_ID}')" aria-label="Maggiori informazioni">
+                    <span class="icon-info"></span>
+                </button>
+                {/IF_HAS_MORE_INFO}
+
+                <button class="btn btn-sm btn-icon" onclick="deleteActivity('{ACTIVITY_ID}')" aria-label="Elimina attività">
+                    <span class="icon-delete"></span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</article>
+
+<!-- 
+    UTILIZZO:
+    Sostituire i placeholder {} con i valori dinamici:
+    
+    {ACTIVITY_ID} - ID univoco dell'attività
+    {START_TIME} - Orario inizio es. "09:00"
+    {DURATION} - Durata es. "2h", "1h 30m"
+    {ACTIVITY_TYPE} - Tipo: transport, food, museum, activity, hotel, etc.
+    {ACTIVITY_TITLE} - Titolo dell'attività
+    {ACTIVITY_DESCRIPTION} - Descrizione breve
+    {LOCATION} - Indirizzo o luogo
+    {COST} - Costo (opzionale)
+    {RATING} - Valutazione (opzionale)
+    {ADDITIONAL_INFO} - Info extra (opzionale)
+    {TAG_NAME} - Nome tag (ripetuto per ogni tag)
+    {NOTES} - Note personalizzate (opzionale)
+    
+    Blocchi condizionali (rimuovere se non necessari):
+    {IF_HAS_COST}...{/IF_HAS_COST}
+    {IF_HAS_RATING}...{/IF_HAS_RATING}
+    {IF_HAS_INFO}...{/IF_HAS_INFO}
+    {IF_AI_SUGGESTED}...{/IF_AI_SUGGESTED}
+    {IF_HAS_TAGS}...{/IF_HAS_TAGS}
+    {IF_HAS_NOTES}...{/IF_HAS_NOTES}
+    {IF_BOOKABLE}...{/IF_BOOKABLE}
+    {IF_HAS_MORE_INFO}...{/IF_HAS_MORE_INFO}
+-->

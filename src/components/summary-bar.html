@@ -1,0 +1,164 @@
+<!-- Summary Bar Component -->
+<!-- Componente riepilogo viaggio compatto (usato in chat e trip-detail) -->
+
+<div class="summary-bar" id="summaryBar">
+    
+    <!-- Header summary -->
+    <div class="summary-bar-header">
+        <h3 class="summary-bar-title">Riepilogo viaggio</h3>
+        <button class="summary-bar-toggle" aria-label="Comprimi riepilogo" aria-expanded="true">
+            <span class="icon-chevron-up"></span>
+        </button>
+    </div>
+
+    <!-- Contenuto summary (collapsible) -->
+    <div class="summary-bar-content" id="summaryBarContent">
+        
+        <!-- Destinazione -->
+        <div class="summary-item" data-field="destination">
+            <span class="summary-icon icon-location"></span>
+            <div class="summary-info">
+                <span class="summary-label">Destinazione</span>
+                <span class="summary-value" id="summaryDestination">{DESTINATION}</span>
+            </div>
+            <button class="summary-edit" onclick="editField('destination')" aria-label="Modifica destinazione">
+                <span class="icon-edit-small"></span>
+            </button>
+        </div>
+
+        <!-- Date -->
+        <div class="summary-item" data-field="dates">
+            <span class="summary-icon icon-calendar"></span>
+            <div class="summary-info">
+                <span class="summary-label">Date</span>
+                <span class="summary-value" id="summaryDates">{DATES}</span>
+            </div>
+            <button class="summary-edit" onclick="editField('dates')" aria-label="Modifica date">
+                <span class="icon-edit-small"></span>
+            </button>
+        </div>
+
+        <!-- Durata -->
+        <div class="summary-item" data-field="duration">
+            <span class="summary-icon icon-clock"></span>
+            <div class="summary-info">
+                <span class="summary-label">Durata</span>
+                <span class="summary-value" id="summaryDuration">{DURATION}</span>
+            </div>
+        </div>
+
+        <!-- Budget -->
+        <div class="summary-item" data-field="budget">
+            <span class="summary-icon icon-wallet"></span>
+            <div class="summary-info">
+                <span class="summary-label">Budget</span>
+                <span class="summary-value" id="summaryBudget">{BUDGET}</span>
+            </div>
+            <button class="summary-edit" onclick="editField('budget')" aria-label="Modifica budget">
+                <span class="icon-edit-small"></span>
+            </button>
+        </div>
+
+        <!-- Separatore -->
+        <hr class="summary-divider">
+
+        <!-- Attività -->
+        <div class="summary-section">
+            <div class="summary-section-header">
+                <span class="summary-icon icon-activities"></span>
+                <h4 class="summary-section-title">Attività</h4>
+                <span class="summary-count" id="activitiesCount">{ACTIVITIES_COUNT}</span>
+            </div>
+            <ul class="summary-list" id="activitiesList">
+                {IF_NO_ACTIVITIES}
+                <li class="summary-list-empty">Nessuna attività ancora</li>
+                {/IF_NO_ACTIVITIES}
+                
+                {FOREACH_ACTIVITY}
+                <li class="summary-list-item">
+                    <span class="list-item-icon icon-{ACTIVITY_TYPE}"></span>
+                    <span class="list-item-text">{ACTIVITY_NAME}</span>
+                    <button class="list-item-remove" onclick="removeActivity('{ACTIVITY_ID}')" aria-label="Rimuovi">
+                        <span class="icon-close-small"></span>
+                    </button>
+                </li>
+                {/FOREACH_ACTIVITY}
+            </ul>
+        </div>
+
+        <!-- Tappe -->
+        <div class="summary-section">
+            <div class="summary-section-header">
+                <span class="summary-icon icon-route"></span>
+                <h4 class="summary-section-title">Tappe</h4>
+                <span class="summary-count" id="stopsCount">{STOPS_COUNT}</span>
+            </div>
+            <ul class="summary-list" id="stopsList">
+                {IF_NO_STOPS}
+                <li class="summary-list-empty">Nessuna tappa ancora</li>
+                {/IF_NO_STOPS}
+                
+                {FOREACH_STOP}
+                <li class="summary-list-item">
+                    <span class="list-item-number">{STOP_NUMBER}</span>
+                    <span class="list-item-text">{STOP_NAME}</span>
+                    <button class="list-item-remove" onclick="removeStop('{STOP_ID}')" aria-label="Rimuovi">
+                        <span class="icon-close-small"></span>
+                    </button>
+                </li>
+                {/FOREACH_STOP}
+            </ul>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="summary-progress">
+            <div class="progress-header">
+                <span class="progress-label">Completamento</span>
+                <span class="progress-percentage" id="progressPercentage">{PROGRESS}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: {PROGRESS}%"></div>
+            </div>
+        </div>
+
+        <!-- Azioni rapide -->
+        <div class="summary-actions">
+            <button class="btn btn-secondary btn-sm btn-block" onclick="resetTrip()">
+                <span class="icon-refresh"></span>
+                Ricomincia
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- 
+    UTILIZZO:
+    Sostituire i placeholder {} con i valori dinamici:
+    
+    {DESTINATION} - Nome destinazione es. "Parigi, Francia"
+    {DATES} - Date formattate es. "15-18 Feb 2026"
+    {DURATION} - Durata es. "3 giorni"
+    {BUDGET} - Budget es. "€ 650"
+    {ACTIVITIES_COUNT} - Numero attività
+    {STOPS_COUNT} - Numero tappe
+    {PROGRESS} - Percentuale completamento (0-100)
+    {ACTIVITY_TYPE} - Tipo attività: museum, food, transport, etc.
+    {ACTIVITY_NAME} - Nome attività
+    {ACTIVITY_ID} - ID attività
+    {STOP_NUMBER} - Numero progressivo tappa
+    {STOP_NAME} - Nome tappa
+    {STOP_ID} - ID tappa
+    
+    Blocchi condizionali:
+    {IF_NO_ACTIVITIES}...{/IF_NO_ACTIVITIES}
+    {IF_NO_STOPS}...{/IF_NO_STOPS}
+    {FOREACH_ACTIVITY}...{/FOREACH_ACTIVITY}
+    {FOREACH_STOP}...{/FOREACH_STOP}
+    
+    Note:
+    - Il componente è collapsible tramite il pulsante toggle
+    - Gli elementi sono modificabili tramite i pulsanti edit inline
+    - Le liste di attività e tappe sono scrollabili
+-->

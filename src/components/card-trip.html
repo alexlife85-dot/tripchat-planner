@@ -1,0 +1,90 @@
+<!-- Card Trip Component -->
+<!-- Componente riutilizzabile per la visualizzazione di una card viaggio -->
+
+<article class="trip-card" data-trip-id="{TRIP_ID}" data-status="{TRIP_STATUS}">
+    
+    <!-- Immagine viaggio -->
+    <div class="trip-card-image">
+        <img src="{TRIP_IMAGE_URL}" alt="{TRIP_TITLE}" loading="lazy">
+        <span class="trip-badge badge-{STATUS_TYPE}">{STATUS_LABEL}</span>
+    </div>
+
+    <!-- Contenuto card -->
+    <div class="trip-card-content">
+        
+        <!-- Header con titolo e menu -->
+        <header class="trip-card-header">
+            <h3 class="trip-card-title">{TRIP_TITLE}</h3>
+            <button class="trip-card-menu" aria-label="Menu viaggio">
+                <span class="icon-dots"></span>
+            </button>
+        </header>
+
+        <!-- Informazioni principali -->
+        <div class="trip-card-info">
+            <div class="info-item">
+                <span class="icon-calendar"></span>
+                <span class="info-text">{TRIP_DATES}</span>
+            </div>
+            <div class="info-item">
+                <span class="icon-clock"></span>
+                <span class="info-text">{TRIP_DURATION}</span>
+            </div>
+            <div class="info-item">
+                <span class="icon-location"></span>
+                <span class="info-text">{TRIP_LOCATION}</span>
+            </div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="trip-card-meta">
+            <span class="meta-item">
+                <span class="meta-label">Attività:</span>
+                <span class="meta-value">{ACTIVITIES_COUNT}</span>
+            </span>
+            <span class="meta-item">
+                <span class="meta-label">Budget:</span>
+                <span class="meta-value">€ {BUDGET}</span>
+            </span>
+        </div>
+
+        <!-- Progress bar (se applicabile) -->
+        <div class="trip-card-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {PROGRESS_PERCENTAGE}%"></div>
+            </div>
+            <span class="progress-text">{PROGRESS_PERCENTAGE}% completato</span>
+        </div>
+
+        <!-- Azioni -->
+        <div class="trip-card-actions">
+            <button class="btn btn-primary btn-sm" onclick="viewTripDetail('{TRIP_ID}')">
+                {PRIMARY_ACTION_LABEL}
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="shareTrip('{TRIP_ID}')">
+                <span class="icon-share"></span>
+            </button>
+        </div>
+
+    </div>
+
+</article>
+
+<!-- 
+    UTILIZZO:
+    Sostituire i placeholder {} con i valori dinamici:
+    
+    {TRIP_ID} - ID univoco del viaggio
+    {TRIP_STATUS} - Stato: upcoming, planning, completed
+    {TRIP_IMAGE_URL} - URL immagine destinazione
+    {TRIP_TITLE} - Titolo del viaggio
+    {STATUS_TYPE} - Tipo badge: upcoming, planning, completed
+    {STATUS_LABEL} - Etichetta: "In arrivo", "In pianificazione", "Completato"
+    {TRIP_DATES} - Date formattate es. "15-18 Feb 2026"
+    {TRIP_DURATION} - Durata es. "3 giorni"
+    {TRIP_LOCATION} - Località es. "Parigi, Francia"
+    {ACTIVITIES_COUNT} - Numero attività
+    {BUDGET} - Budget in euro
+    {PROGRESS_PERCENTAGE} - Percentuale completamento (0-100)
+    {PRIMARY_ACTION_LABEL} - Testo bottone primario
+-->
