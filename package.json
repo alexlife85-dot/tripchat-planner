@@ -8,6 +8,7 @@
     "dev": "npx serve . -l 3000",
     "serve": "npx serve . -l 8080",
     "preview": "npx serve . -l 8080",
+    "build": "echo 'No build required - static HTML/CSS/JS app'",
     "deploy": "echo 'Deploy avviene automaticamente via GitHub Actions'"
   },
   "repository": {
