@@ -2,24 +2,58 @@ const fs = require('fs');
 const path = require('path');
 
 console.log('📦 Building TripChat Planner for Azure Static Web Apps...');
-console.log('ℹ️  Files already in place - no copying needed for static app');
 
-// Verify required files exist
-const requiredFiles = ['index.html', 'staticwebapp.config.json', 'src', 'public'];
-let allFilesExist = true;
+// Create dist directory
+const distDir = path.join(__dirname, 'dist');
+if (fs.existsSync(distDir)) {
+  fs.rmSync(distDir, { recursive: true, force: true });
+  console.log('  🗑️  Cleaned existing dist/ folder');
+}
+fs.mkdirSync(distDir, { recursive: true });
 
-for (const file of requiredFiles) {
-  if (fs.existsSync(path.join(__dirname, file))) {
-    console.log(`  ✓ ${file} exists`);
+// Copy files and directories
+function copyRecursive(src, dest) {
+  const stats = fs.statSync(src);
+  
+  if (stats.isDirectory()) {
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest, { recursive: true });
+    }
+    const entries = fs.readdirSync(src);
+    for (const entry of entries) {
+      copyRecursive(path.join(src, entry), path.join(dest, entry));
+    }
   } else {
-    console.log(`  ✗ ${file} missing!`);
-    allFilesExist = false;
+    fs.copyFileSync(src, dest);
   }
 }
 
-if (allFilesExist) {
-  console.log('✅ Build complete! All static files in place.');
-} else {
-  console.error('❌ Build failed! Some required files are missing.');
-  process.exit(1);
+// Copy all necessary files
+console.log('  ✓ Copying index.html...');
+fs.copyFileSync('index.html', path.join(distDir, 'index.html'));
+
+console.log('  ✓ Copying staticwebapp.config.json...');
+fs.copyFileSync('staticwebapp.config.json', path.join(distDir, 'staticwebapp.config.json'));
+
+console.log('  ✓ Copying src/...');
+copyRecursive('src', path.join(distDir, 'src'));
+
+console.log('  ✓ Copying public/...');
+copyRecursive('public', path.join(distDir, 'public'));
+
+console.log('✅ Build complete! Output in dist/');
+console.log(`📁 Total files in dist/: ${countFiles(distDir)}`);
+
+function countFiles(dir) {
+  let count = 0;
+  const entries = fs.readdirSync(dir);
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry);
+    if (fs.statSync(fullPath).isDirectory()) {
+      count += countFiles(fullPath);
+    } else {
+      count++;
+    }
+  }
+  return count;
 }

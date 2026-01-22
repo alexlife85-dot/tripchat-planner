@@ -37,6 +37,11 @@ bower_components
 # Compiled binary addons
 build/Release
 
+# Build output folders
+dist/
+out/
+.next/
+
 # Dependency directories
 node_modules/
 jspm_packages/
