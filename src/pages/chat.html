@@ -62,6 +62,97 @@
             outline: 3px solid rgba(79, 70, 229, 0.5);
             outline-offset: 2px;
         }
+        
+        /* Sidebar overlay for mobile/tablet */
+        .sidebar-overlay {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .sidebar-overlay.open {
+            transform: translateX(0);
+        }
+        
+        /* Backdrop */
+        .sidebar-backdrop {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .sidebar-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Trip summary collapsed state */
+        .trip-summary-collapsed {
+            max-height: 60px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .trip-summary-expanded {
+            max-height: 500px;
+            transition: max-height 0.3s ease-in;
+        }
+        
+        /* Touch feedback */
+        .touch-active {
+            background-color: rgba(79, 70, 229, 0.1);
+            transform: scale(0.98);
+        }
+        
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Ripple effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .ripple.active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Long press effect */
+        .long-press-active {
+            transform: scale(0.95);
+            background-color: rgba(79, 70, 229, 0.15);
+        }
+        
+        /* Prevent text selection during gestures */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        /* Hide scrollbar */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -79,10 +170,13 @@
 </head>
 <body class="bg-gray-50">
 
-<div class="flex h-screen max-w-[1440px] mx-auto overflow-hidden">
+<!-- Sidebar backdrop for mobile/tablet -->
+<div id="sidebar-backdrop" class="sidebar-backdrop fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
+
+<div class="flex flex-col lg:flex-row h-screen overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-80 bg-white border-r border-gray-200 flex flex-col">
+    <aside id="sidebar" class="sidebar-overlay fixed lg:relative inset-y-0 left-0 z-50 w-80 md:w-72 lg:w-80 bg-white border-r border-gray-200 flex flex-col lg:translate-x-0">
         
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between mb-4">
@@ -146,10 +240,14 @@
     <main class="flex-1 flex flex-col bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50">
         
         <!-- Chat header -->
-        <header class="bg-white border-b border-gray-200 p-4">
+        <header class="bg-white border-b border-gray-200 p-3 md:p-4">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
+                <div class="flex items-center space-x-2 md:space-x-3 flex-1 min-w-0">
+                    <!-- Mobile menu button -->
+                    <button id="mobile-menu-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors lg:hidden" aria-label="Menu chat">
+                        <i class="fa-solid fa-bars text-gray-600"></i>
+                    </button>
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
                         <i class="fa-solid fa-robot text-white"></i>
                     </div>
                     <div>
@@ -175,40 +273,51 @@
         </header>
 
         <!-- Trip summary bar -->
-        <div class="bg-white border-b border-gray-200 p-4 shadow-sm" role="status" aria-live="polite">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4 flex-wrap gap-2">
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-location-dot text-primary"></i>
-                        <span class="text-sm font-semibold text-gray-900">Tokyo → Kyoto</span>
+        <div class="bg-white border-b border-gray-200 p-3 md:p-4 shadow-sm" role="status" aria-live="polite">
+            <div class="flex items-center justify-between mb-2 md:mb-0">
+                <h3 class="text-sm font-semibold text-gray-900 flex items-center">
+                    <i class="fa-solid fa-suitcase text-primary mr-2"></i>
+                    Dettagli Viaggio
+                </h3>
+                <button id="trip-summary-toggle" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors md:hidden" aria-label="Mostra/nascondi dettagli">
+                    <i class="fa-solid fa-chevron-down text-gray-600"></i>
+                </button>
+            </div>
+            <div id="trip-summary-details" class="trip-summary-collapsed md:!max-h-none">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4 flex-wrap gap-2">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-location-dot text-primary"></i>
+                            <span class="text-sm font-semibold text-gray-900">Tokyo → Kyoto</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-calendar text-secondary"></i>
+                            <span class="text-sm text-gray-600">10-20 Ottobre</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-users text-accent"></i>
+                            <span class="text-sm text-gray-600">2 persone</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-wallet text-green-600"></i>
+                            <span class="text-sm text-gray-600">€1500/persona</span>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-calendar text-secondary"></i>
-                        <span class="text-sm text-gray-600">10-20 Ottobre</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-users text-accent"></i>
-                        <span class="text-sm text-gray-600">2 persone</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-wallet text-green-600"></i>
-                        <span class="text-sm text-gray-600">€1500/persona</span>
-                    </div>
+                    <button id="edit-trip-btn" class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium px-2 py-1 rounded mt-2 md:mt-0">Modifica</button>
                 </div>
-                <button id="edit-trip-btn" class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium px-2 py-1 rounded">Modifica</button>
             </div>
         </div>
 
         <!-- Messages container -->
-        <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-4" role="log" aria-live="polite" aria-atomic="false">
+        <div id="messages-container" class="flex-1 overflow-y-auto p-4 md:p-5 lg:p-6 space-y-3 md:space-y-4" role="log" aria-live="polite" aria-atomic="false">
             
             <!-- Bot message -->
-            <div class="flex items-start space-x-3 message-enter">
-                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-robot text-white text-sm"></i>
+            <div class="flex items-start space-x-2 md:space-x-3 message-enter">
+                <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-robot text-white text-xs md:text-sm"></i>
                 </div>
                 <div class="flex-1">
-                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100 max-w-lg">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-3 md:p-4 shadow-sm border border-gray-100 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                         <p class="text-gray-800">Ciao! 👋 Sono il tuo assistente di viaggio. Raccontami dove vorresti andare e ti aiuterò a creare l'itinerario perfetto!</p>
                     </div>
                     <span class="text-xs text-gray-500 mt-1 block">10:23</span>
@@ -216,10 +325,10 @@
             </div>
 
             <!-- User message -->
-            <div class="flex items-start space-x-3 justify-end message-enter">
+            <div class="flex items-start space-x-2 md:space-x-3 justify-end message-enter">
                 <div class="flex-1 flex justify-end">
                     <div>
-                        <div class="bg-primary rounded-2xl rounded-tr-none p-4 shadow-sm max-w-lg">
+                        <div class="bg-primary rounded-2xl rounded-tr-none p-3 md:p-4 shadow-sm max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                             <p class="text-white">Vorrei fare 10 giorni tra Tokyo e Kyoto a ottobre, budget medio</p>
                         </div>
                         <span class="text-xs text-gray-500 mt-1 block text-right">10:24</span>
@@ -227,16 +336,16 @@
                 </div>
                 <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
                      alt="User" 
-                     class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                     class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover flex-shrink-0">
             </div>
 
             <!-- Bot message with checklist -->
-            <div class="flex items-start space-x-3 message-enter">
-                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-robot text-white text-sm"></i>
+            <div class="flex items-start space-x-2 md:space-x-3 message-enter">
+                <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-robot text-white text-xs md:text-sm"></i>
                 </div>
                 <div class="flex-1">
-                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100 max-w-lg">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-3 md:p-4 shadow-sm border border-gray-100 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                         <p class="text-gray-800 mb-3">Perfetto! Un viaggio in Giappone a ottobre è un'ottima scelta. 🍂 Ho capito:</p>
                         <div class="space-y-2 mb-3">
                             <div class="flex items-center space-x-2 text-sm">
@@ -258,7 +367,7 @@
                         </div>
                         <p class="text-gray-800">Mi servono ancora alcune informazioni:</p>
                     </div>
-                    <div class="flex flex-wrap gap-2 mt-3 max-w-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-3 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                         <button class="quick-reply-chip chip-hover px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-sm font-medium text-blue-700 transition-all hover:bg-blue-100">
                             <i class="fa-solid fa-calendar mr-1"></i>
                             Date esatte
@@ -285,7 +394,7 @@
                     </h3>
                     <button class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium px-2 py-1 rounded">Espandi</button>
                 </div>
-                <div class="relative h-48 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl overflow-hidden">
+                <div class="relative h-40 md:h-56 lg:h-64 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl overflow-hidden">
                     <div class="absolute inset-0 flex items-center justify-around p-6">
                         <div class="text-center map-marker">
                             <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-2 mx-auto shadow-lg">
@@ -311,10 +420,10 @@
             </div>
 
             <!-- User message -->
-            <div class="flex items-start space-x-3 justify-end message-enter">
+            <div class="flex items-start space-x-2 md:space-x-3 justify-end message-enter">
                 <div class="flex-1 flex justify-end">
                     <div>
-                        <div class="bg-primary rounded-2xl rounded-tr-none p-4 shadow-sm max-w-lg">
+                        <div class="bg-primary rounded-2xl rounded-tr-none p-3 md:p-4 shadow-sm max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                             <p class="text-white">Saremo in 2, dal 10 al 20 ottobre, budget circa 1500€ a persona</p>
                         </div>
                         <span class="text-xs text-gray-500 mt-1 block text-right">10:26</span>
@@ -322,19 +431,19 @@
                 </div>
                 <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
                      alt="User" 
-                     class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                     class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover flex-shrink-0">
             </div>
 
             <!-- Bot message with summary -->
-            <div class="flex items-start space-x-3 message-enter">
-                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-robot text-white text-sm"></i>
+            <div class="flex items-start space-x-2 md:space-x-3 message-enter">
+                <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-robot text-white text-xs md:text-sm"></i>
                 </div>
                 <div class="flex-1">
-                    <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100 max-w-lg">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-3 md:p-4 shadow-sm border border-gray-100 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                         <p class="text-gray-800 mb-3">Eccellente! ✨ Ho tutte le informazioni necessarie. Il tuo viaggio include:</p>
-                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 mb-3 border border-blue-100">
-                            <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-3 md:p-4 mb-3 border border-blue-100">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                                 <div>
                                     <p class="text-gray-600 text-xs">Destinazioni</p>
                                     <p class="font-semibold text-gray-900">Tokyo → Kyoto</p>
@@ -366,25 +475,25 @@
         </div>
 
         <!-- Input section -->
-        <div class="bg-white border-t border-gray-200 p-4">
+        <div class="bg-white border-t border-gray-200 p-3 md:p-4">
             <div class="max-w-4xl mx-auto">
-                <div id="quick-suggestions" class="flex flex-wrap gap-2 mb-3">
-                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all">
+                <div id="quick-suggestions" class="flex overflow-x-auto gap-2 mb-3 pb-2 scrollbar-hide">
+                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all whitespace-nowrap">
                         Aggiungi tappa
                     </button>
-                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all">
+                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all whitespace-nowrap">
                         Cambia date
                     </button>
-                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all">
+                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all whitespace-nowrap">
                         Preferenze trasporto
                     </button>
-                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all">
+                    <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all whitespace-nowrap">
                         Suggerisci attività
                     </button>
                 </div>
                 
-                <div class="flex items-end space-x-3">
-                    <button id="attach-btn" class="focus-ring p-3 hover:bg-gray-100 rounded-xl transition-colors" aria-label="Allega file">
+                <div class="flex items-end space-x-2 md:space-x-3">
+                    <button id="attach-btn" class="focus-ring min-h-[44px] min-w-[44px] p-3 hover:bg-gray-100 rounded-xl transition-colors" aria-label="Allega file">
                         <i class="fa-solid fa-plus text-gray-600"></i>
                     </button>
                     <div class="flex-1 relative">
@@ -392,12 +501,12 @@
                                   rows="1" 
                                   placeholder="Scrivi un messaggio o descrivi il tuo viaggio..." 
                                   class="focus-ring w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm" 
-                                  style="max-height: 120px;"></textarea>
+                                  style="max-height: 150px;"></textarea>
                     </div>
-                    <button id="send-btn" class="focus-ring p-3 bg-primary hover:bg-indigo-700 text-white rounded-xl transition-colors" aria-label="Invia messaggio">
+                    <button id="send-btn" class="focus-ring min-h-[44px] min-w-[44px] p-3 bg-primary hover:bg-indigo-700 text-white rounded-xl transition-colors" aria-label="Invia messaggio">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
-                    <button id="voice-btn" class="focus-ring p-3 hover:bg-gray-100 rounded-xl transition-colors" aria-label="Messaggio vocale">
+                    <button id="voice-btn" class="focus-ring min-h-[44px] min-w-[44px] p-3 hover:bg-gray-100 rounded-xl transition-colors" aria-label="Messaggio vocale">
                         <i class="fa-solid fa-microphone text-gray-600"></i>
                     </button>
                 </div>
@@ -446,11 +555,87 @@ window.addEventListener('load', function() {
     const backHomeBtn = document.getElementById('back-home-btn');
     const settingsLink = document.getElementById('settings-link');
     const newChatBtn = document.getElementById('new-chat-btn');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    const tripSummaryToggle = document.getElementById('trip-summary-toggle');
+    const tripSummaryDetails = document.getElementById('trip-summary-details');
+
+    // Sidebar functions
+    function openSidebar() {
+        sidebar.classList.add('open');
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        sidebarBackdrop.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        sidebarBackdrop.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // Trip summary toggle
+    function toggleTripSummary() {
+        const icon = tripSummaryToggle.querySelector('i');
+        if (tripSummaryDetails.classList.contains('trip-summary-collapsed')) {
+            tripSummaryDetails.classList.remove('trip-summary-collapsed');
+            tripSummaryDetails.classList.add('trip-summary-expanded');
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        } else {
+            tripSummaryDetails.classList.add('trip-summary-collapsed');
+            tripSummaryDetails.classList.remove('trip-summary-expanded');
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        }
+    }
+
+    // Touch feedback
+    function addTouchFeedback(element) {
+        element.addEventListener('touchstart', function() {
+            this.classList.add('touch-active');
+        });
+        element.addEventListener('touchend', function() {
+            this.classList.remove('touch-active');
+        });
+        element.addEventListener('touchcancel', function() {
+            this.classList.remove('touch-active');
+        });
+    }
+
+    // Event listeners
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', openSidebar);
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeSidebar);
+    }
+
+    if (tripSummaryToggle) {
+        tripSummaryToggle.addEventListener('click', toggleTripSummary);
+    }
+
+    // Apply touch feedback to buttons
+    document.querySelectorAll('button').forEach(btn => {
+        addTouchFeedback(btn);
+    });
+
+    // Window resize handler
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+            closeSidebar();
+        }
+    });
 
     // Auto-resize textarea
     messageInput.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 150) + 'px';
     });
 
     // Scroll to bottom
