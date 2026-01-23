@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="TripChat Planner - Chat di pianificazione viaggi con intelligenza artificiale">
     <title>Chat - TripChat Planner</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -78,6 +78,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease-in-out;
+            will-change: opacity;
         }
         
         .sidebar-backdrop.open {
@@ -93,8 +94,14 @@
         }
         
         .trip-summary-expanded {
-            max-height: 500px;
+            max-height: 200px;
             transition: max-height 0.3s ease-in;
+        }
+        
+        @media (min-width: 768px) {
+            .trip-summary-expanded {
+                max-height: 500px;
+            }
         }
         
         /* Touch feedback */
@@ -153,6 +160,102 @@
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
+        
+        /* Messages container optimization for mobile */
+        #messages-container {
+            min-height: 200px;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+        }
+        
+        /* Safe area support for iOS devices with notch */
+        .input-section {
+            padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+        }
+        
+        @media (min-width: 768px) {
+            .input-section {
+                padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+            }
+        }
+        
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(79, 70, 229, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 30;
+        }
+        
+        .scroll-indicator.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .scroll-indicator:hover {
+            background: rgba(79, 70, 229, 1);
+            transform: scale(1.1);
+        }
+        
+        /* Enhanced message animations */
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .message-bot {
+            animation: slideInLeft 0.4s ease-out;
+        }
+        
+        .message-user {
+            animation: slideInRight 0.4s ease-out;
+        }
+        
+        /* Loading skeleton */
+        @keyframes skeleton-loading {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 0px, #f8f8f8 40px, #f0f0f0 80px);
+            background-size: 200px 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -173,7 +276,7 @@
 <!-- Sidebar backdrop for mobile/tablet -->
 <div id="sidebar-backdrop" class="sidebar-backdrop fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
 
-<div class="flex flex-col lg:flex-row h-screen overflow-hidden">
+<div class="flex flex-col lg:flex-row min-h-screen">
 
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar-overlay fixed lg:relative inset-y-0 left-0 z-50 w-80 md:w-72 lg:w-80 bg-white border-r border-gray-200 flex flex-col lg:translate-x-0">
@@ -310,6 +413,11 @@
 
         <!-- Messages container -->
         <div id="messages-container" class="flex-1 overflow-y-auto p-4 md:p-5 lg:p-6 space-y-3 md:space-y-4" role="log" aria-live="polite" aria-atomic="false">
+            
+            <!-- Scroll to bottom indicator -->
+            <button id="scroll-indicator" class="scroll-indicator" aria-label="Scorri in basso">
+                <i class="fa-solid fa-chevron-down text-white"></i>
+            </button>
             
             <!-- Bot message -->
             <div class="flex items-start space-x-2 md:space-x-3 message-enter">
@@ -475,7 +583,7 @@
         </div>
 
         <!-- Input section -->
-        <div class="bg-white border-t border-gray-200 p-3 md:p-4">
+        <div class="input-section bg-white border-t border-gray-200 p-3 md:p-4">
             <div class="max-w-4xl mx-auto">
                 <div id="quick-suggestions" class="flex overflow-x-auto gap-2 mb-3 pb-2 scrollbar-hide">
                     <button class="suggestion-chip chip-hover px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all whitespace-nowrap">
@@ -560,6 +668,75 @@ window.addEventListener('load', function() {
     const sidebarBackdrop = document.getElementById('sidebar-backdrop');
     const tripSummaryToggle = document.getElementById('trip-summary-toggle');
     const tripSummaryDetails = document.getElementById('trip-summary-details');
+    const scrollIndicator = document.getElementById('scroll-indicator');
+
+    // Swipe gesture handling for sidebar
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const horizontalSwipe = Math.abs(touchEndX - touchStartX);
+        const verticalSwipe = Math.abs(touchEndY - touchStartY);
+        
+        // Only trigger if horizontal swipe is dominant
+        if (horizontalSwipe > verticalSwipe && horizontalSwipe > swipeThreshold) {
+            if (touchEndX < touchStartX && sidebar.classList.contains('open')) {
+                // Swipe left - close sidebar
+                closeSidebar();
+            } else if (touchEndX > touchStartX && touchStartX < 50 && !sidebar.classList.contains('open')) {
+                // Swipe right from edge - open sidebar
+                openSidebar();
+            }
+        }
+    }
+    
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    
+    document.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+    }, { passive: true });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        // ESC to close sidebar
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+            closeSidebar();
+        }
+        // / to focus input (like Slack)
+        if (e.key === '/' && document.activeElement !== messageInput) {
+            e.preventDefault();
+            messageInput.focus();
+        }
+    });
+    
+    // Scroll indicator management
+    function updateScrollIndicator() {
+        const threshold = 100;
+        const distanceFromBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight;
+        
+        if (distanceFromBottom > threshold) {
+            scrollIndicator.classList.add('visible');
+        } else {
+            scrollIndicator.classList.remove('visible');
+        }
+    }
+    
+    messagesContainer.addEventListener('scroll', updateScrollIndicator);
+    
+    scrollIndicator.addEventListener('click', () => {
+        messagesContainer.scrollTo({
+            top: messagesContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+    });
 
     // Sidebar functions
     function openSidebar() {
@@ -567,7 +744,12 @@ window.addEventListener('load', function() {
         sidebar.classList.remove('-translate-x-full');
         sidebar.classList.add('translate-x-0');
         sidebarBackdrop.classList.add('open');
-        document.body.style.overflow = 'hidden';
+        // Prevent body scroll on mobile when sidebar is open
+        if (window.innerWidth < 1024) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+        }
     }
 
     function closeSidebar() {
@@ -575,7 +757,10 @@ window.addEventListener('load', function() {
         sidebar.classList.add('-translate-x-full');
         sidebar.classList.remove('translate-x-0');
         sidebarBackdrop.classList.remove('open');
+        // Restore body scroll
         document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
     }
 
     // Trip summary toggle
@@ -637,16 +822,45 @@ window.addEventListener('load', function() {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 150) + 'px';
     });
+    
+    // Scroll input into view when focused (handles keyboard on mobile)
+    messageInput.addEventListener('focus', function() {
+        setTimeout(() => {
+            this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Ensure messages are visible after keyboard appears
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 400);
+        }, 300);
+    });
+    
+    // Handle visual viewport changes (keyboard open/close on mobile)
+    if (window.visualViewport) {
+        let resizeTimeout;
+        window.visualViewport.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const viewportHeight = window.visualViewport.height;
+                document.documentElement.style.setProperty('--viewport-height', `${viewportHeight}px`);
+                // Scroll to show latest messages when keyboard state changes
+                if (document.activeElement === messageInput) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            }, 100);
+        });
+    }
 
     // Scroll to bottom
     function scrollToBottom() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        updateScrollIndicator();
     }
 
     // Add message
     function addMessage(content, isUser = false) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `flex items-start space-x-3 ${isUser ? 'justify-end' : ''} message-enter`;
+        const animationClass = isUser ? 'message-user' : 'message-bot';
+        messageDiv.className = `flex items-start space-x-3 ${isUser ? 'justify-end' : ''} ${animationClass}`;
         
         const time = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
         
@@ -678,6 +892,7 @@ window.addEventListener('load', function() {
         
         messagesContainer.appendChild(messageDiv);
         scrollToBottom();
+        updateScrollIndicator();
     }
 
     // Show typing indicator
