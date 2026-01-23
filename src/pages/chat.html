@@ -17,7 +17,14 @@
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+        }
+        
+        html {
+            overflow-x: hidden;
+        }
         
         @keyframes slideUp {
             from { transform: translateY(10px); opacity: 0; }
@@ -169,6 +176,7 @@
             overscroll-behavior: contain;
             touch-action: pan-y;
             flex: 1 1 0%;
+            overflow-x: hidden;
         }
         
         /* Safe area support for iOS devices with notch */
@@ -389,7 +397,7 @@
                 </button>
             </div>
             <div id="trip-summary-details" class="trip-summary-collapsed md:!max-h-none">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
                     <div class="flex items-center space-x-4 flex-wrap gap-2">
                         <div class="flex items-center space-x-2">
                             <i class="fa-solid fa-location-dot text-primary"></i>
@@ -496,7 +504,7 @@
             </div>
 
             <!-- Map preview -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 max-w-2xl mx-auto message-enter">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 max-w-full lg:max-w-2xl mx-auto message-enter">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="font-semibold text-gray-900 flex items-center">
                         <i class="fa-solid fa-map-location-dot text-primary mr-2"></i>
