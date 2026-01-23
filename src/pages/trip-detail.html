@@ -86,6 +86,206 @@
             outline: 3px solid rgba(79, 70, 229, 0.5);
             outline-offset: 2px;
         }
+        
+        /* Mobile sidebar overlay */
+        .sidebar-overlay {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .sidebar-overlay.open {
+            transform: translateX(0);
+        }
+        
+        /* Backdrop */
+        .sidebar-backdrop {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .sidebar-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Map collapsed state */
+        .map-collapsed {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .map-expanded {
+            max-height: 400px;
+            transition: max-height 0.3s ease-in;
+        }
+        
+        /* Tablet and Desktop map height */
+        @media (min-width: 768px) {
+            #interactive-map {
+                height: auto !important;
+                max-height: none !important;
+            }
+        }
+        
+        /* Tablet optimizations */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            /* Reduce padding on tablet for more content space */
+            #trip-header {
+                padding: 0.75rem;
+            }
+            
+            .day-header {
+                padding: 0.75rem;
+            }
+            
+            .day-content {
+                padding: 0.75rem;
+            }
+            
+            /* Compact activity cards */
+            .draggable {
+                padding: 0.75rem;
+            }
+            
+            /* Sidebar width optimization */
+            #sidebar {
+                width: 18rem; /* 288px instead of 320px */
+            }
+        }
+        
+        /* Desktop sidebar visible */
+        @media (min-width: 1024px) {
+            .sidebar-backdrop {
+                display: none;
+            }
+        }
+        
+        /* Touch feedback */
+        .touch-active {
+            background-color: rgba(79, 70, 229, 0.1);
+            transform: scale(0.98);
+        }
+        
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .ripple.active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Long press indicator */
+        .long-press-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #4F46E5;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .long-press-indicator.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        /* Dragging touch state */
+        .touch-dragging {
+            opacity: 0.8;
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        
+        /* Fullscreen map modal */
+        .map-fullscreen-modal {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 9999;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+        }
+        
+        .map-fullscreen-modal.open {
+            transform: translateY(0);
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #4F46E5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #9ca3af;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Activity card time badge */
+        .time-badge {
+            min-width: 48px;
+            flex-shrink: 0;
+        }
+        
+        /* Booking card priority indicator */
+        .booking-urgent {
+            animation: pulse-urgent 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-urgent {
+            0%, 100% { 
+                border-color: #fbbf24;
+                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+            }
+            50% { 
+                border-color: #f59e0b;
+                box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+            }
+        }
+        
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -103,10 +303,131 @@
 </head>
 <body class="bg-gray-50">
 
-<div class="flex h-screen">
+<!-- Mobile & Tablet sidebar backdrop -->
+<div id="sidebar-backdrop" class="sidebar-backdrop fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
+
+<!-- Fullscreen Map Modal -->
+<div id="map-fullscreen-modal" class="map-fullscreen-modal lg:hidden">
+    <div class="flex flex-col h-full">
+        <!-- Modal header -->
+        <div class="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900">Mappa Completa</h2>
+            <button id="close-fullscreen-map" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors" aria-label="Chiudi mappa">
+                <i class="fa-solid fa-times text-gray-600 text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Map tabs -->
+        <div class="bg-white border-b border-gray-200 p-4">
+            <div class="flex space-x-2">
+                <button class="fullscreen-map-tab focus-ring px-4 py-2 bg-primary text-white rounded-full text-sm" data-tab="stops">Tappe</button>
+                <button class="fullscreen-map-tab focus-ring px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200" data-tab="routes">Percorsi</button>
+                <button class="fullscreen-map-tab focus-ring px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200" data-tab="weather">Meteo</button>
+            </div>
+        </div>
+        
+        <!-- Fullscreen map content -->
+        <div class="flex-1 relative bg-white overflow-hidden">
+            <svg class="absolute inset-0 w-full h-full" style="background: linear-gradient(135deg, #E8F3F1 0%, #D4E9E7 100%);">
+                <defs>
+                    <pattern id="grid-fullscreen" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#CBD5E1" stroke-width="0.5" opacity="0.3"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid-fullscreen)"/>
+                
+                <line x1="15%" y1="25%" x2="45%" y2="30%" stroke="#4F46E5" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+                <line x1="45%" y1="30%" x2="45%" y2="70%" stroke="#06B6D4" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+                <line x1="45%" y1="70%" x2="85%" y2="75%" stroke="#4F46E5" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+            </svg>
+            
+            <!-- Copy of map markers (same as original map) -->
+            <div class="map-marker marker-active" style="left: 15%; top: 25%;">
+                <div class="w-16 h-16 bg-red-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-xl border-4 border-white">A</div>
+                <div class="absolute top-20 left-1/2 -translate-x-1/2 bg-white rounded-lg px-4 py-2 shadow-lg whitespace-nowrap">
+                    <div class="text-sm font-semibold text-gray-900">Milano</div>
+                    <div class="text-xs text-gray-500">10 ott, 08:00</div>
+                </div>
+            </div>
+            
+            <div class="route-icon" style="left: 30%; top: 27.5%;">
+                <i class="fa-solid fa-plane text-gray-600"></i>
+                <span class="text-sm text-gray-600 ml-2">12h 30m</span>
+            </div>
+            
+            <div class="map-marker" style="left: 45%; top: 30%;">
+                <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg shadow-xl border-4 border-white">1</div>
+                <div class="absolute top-20 left-1/2 -translate-x-1/2 bg-white rounded-lg px-4 py-2 shadow-lg whitespace-nowrap">
+                    <div class="text-sm font-semibold text-gray-900">Tokyo</div>
+                    <div class="text-xs text-gray-500">10-15 ott</div>
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-cloud-sun text-yellow-500 text-sm mr-1"></i>
+                        <span class="text-xs text-gray-600">22°/15°</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="route-icon" style="left: 45%; top: 50%;">
+                <i class="fa-solid fa-train text-secondary"></i>
+                <span class="text-sm text-gray-600 ml-2">2h 15m</span>
+            </div>
+            
+            <div class="map-marker" style="left: 45%; top: 70%;">
+                <div class="w-16 h-16 bg-secondary text-white rounded-full flex items-center justify-center font-bold text-lg shadow-xl border-4 border-white">2</div>
+                <div class="absolute top-20 left-1/2 -translate-x-1/2 bg-white rounded-lg px-4 py-2 shadow-lg whitespace-nowrap">
+                    <div class="text-sm font-semibold text-gray-900">Kyoto</div>
+                    <div class="text-xs text-gray-500">15-20 ott</div>
+                    <div class="flex items-center mt-1">
+                        <i class="fa-solid fa-cloud-rain text-blue-500 text-sm mr-1"></i>
+                        <span class="text-xs text-gray-600">19°/13°</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="route-icon" style="left: 65%; top: 72.5%;">
+                <i class="fa-solid fa-plane text-gray-600"></i>
+                <span class="text-sm text-gray-600 ml-2">13h 45m</span>
+            </div>
+            
+            <div class="map-marker" style="left: 85%; top: 75%;">
+                <div class="w-16 h-16 bg-red-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-xl border-4 border-white">B</div>
+                <div class="absolute top-20 left-1/2 -translate-x-1/2 bg-white rounded-lg px-4 py-2 shadow-lg whitespace-nowrap">
+                    <div class="text-sm font-semibold text-gray-900">Milano</div>
+                    <div class="text-xs text-gray-500">20 ott, 18:30</div>
+                </div>
+            </div>
+            
+            <!-- Map controls -->
+            <div class="absolute top-4 right-4 flex flex-col space-y-3">
+                <button class="focus-ring w-12 h-12 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Zoom in">
+                    <i class="fa-solid fa-plus text-gray-700 text-lg"></i>
+                </button>
+                <button class="focus-ring w-12 h-12 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Zoom out">
+                    <i class="fa-solid fa-minus text-gray-700 text-lg"></i>
+                </button>
+                <button class="focus-ring w-12 h-12 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Centra">
+                    <i class="fa-solid fa-location-crosshairs text-gray-700 text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Distance info -->
+            <div class="absolute bottom-4 left-4 bg-white rounded-lg px-4 py-3 shadow-lg">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-route text-primary text-lg"></i>
+                    <div>
+                        <div class="text-xs text-gray-600">Distanza totale</div>
+                        <div class="text-base font-semibold text-gray-900">~19,500 km</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-col lg:flex-row h-screen">
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-80 bg-white border-r border-gray-200 flex flex-col">
+    <aside id="sidebar" class="sidebar-overlay fixed lg:relative inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-200 flex flex-col lg:translate-x-0">
         
         <div id="sidebar-header" class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between mb-4">
@@ -168,16 +489,20 @@
         <header id="app-bar" class="bg-white border-b border-gray-200 p-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <button id="back-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Indietro">
+                    <!-- Mobile & Tablet menu button -->
+                    <button id="mobile-menu-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors lg:hidden" aria-label="Menu viaggi">
+                        <i class="fa-solid fa-bars text-gray-600"></i>
+                    </button>
+                    <button id="back-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors" aria-label="Indietro">
                         <i class="fa-solid fa-arrow-left text-gray-600"></i>
                     </button>
-                    <h1 class="text-lg font-semibold text-gray-900">Tokyo & Kyoto</h1>
+                    <h1 class="text-base sm:text-lg md:text-xl font-semibold text-gray-900 truncate">Tokyo & Kyoto</h1>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button id="share-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Condividi">
+                <div class="flex items-center space-x-1 sm:space-x-2">
+                    <button id="share-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors" aria-label="Condividi">
                         <i class="fa-solid fa-share text-gray-600"></i>
                     </button>
-                    <button id="menu-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Menu">
+                    <button id="menu-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors" aria-label="Menu">
                         <i class="fa-solid fa-ellipsis-vertical text-gray-600"></i>
                     </button>
                 </div>
@@ -185,23 +510,23 @@
         </header>
 
         <!-- Trip header -->
-        <section id="trip-header" class="bg-white border-b border-gray-200 p-4">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-4">
+        <section id="trip-header" class="bg-white border-b border-gray-200 p-3 md:p-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-3">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4">
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-calendar text-primary"></i>
-                        <span class="font-semibold text-gray-900">10–20 ott 2026</span>
+                        <span class="text-sm sm:text-base font-semibold text-gray-900">10–20 ott 2026</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-users text-secondary"></i>
-                        <span class="text-gray-600">2 persone</span>
+                        <span class="text-sm sm:text-base text-gray-600">2 persone</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-wallet text-accent"></i>
-                        <span class="text-gray-600">€3000</span>
+                        <span class="text-sm sm:text-base text-gray-600">€3000</span>
                     </div>
                 </div>
-                <button id="open-chat-btn" class="focus-ring px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                <button id="open-chat-btn" class="focus-ring w-full sm:w-auto min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
                     Apri in Chat
                 </button>
             </div>
@@ -213,14 +538,24 @@
             </div>
         </section>
 
-        <div class="flex-1 flex overflow-hidden">
+        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
             
             <!-- Map section -->
-            <section id="map-section" class="w-96 bg-white border-r border-gray-200 flex flex-col">
+            <section id="map-section" class="w-full md:w-80 lg:w-96 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col">
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex items-center justify-between mb-3">
-                        <h2 class="font-semibold text-gray-900">Mappa Itinerario</h2>
-                        <button id="expand-map-btn" class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium">Espandi</button>
+                        <h2 class="text-sm md:text-base font-semibold text-gray-900">Mappa Itinerario</h2>
+                        <div class="flex items-center space-x-2">
+                            <button id="fullscreen-map-btn" class="focus-ring min-h-[44px] px-3 text-xs text-primary hover:text-indigo-700 font-medium lg:hidden">
+                                <i class="fa-solid fa-expand mr-1"></i>
+                                <span>Fullscreen</span>
+                            </button>
+                            <button id="toggle-map-btn" class="focus-ring min-h-[44px] px-3 text-xs text-primary hover:text-indigo-700 font-medium lg:hidden">
+                                <i class="fa-solid fa-chevron-down map-toggle-icon"></i>
+                                <span class="ml-1">Mostra</span>
+                            </button>
+                            <button id="expand-map-btn" class="focus-ring hidden lg:block text-xs text-primary hover:text-indigo-700 font-medium">Espandi</button>
+                        </div>
                     </div>
                     <div class="flex space-x-2">
                         <button class="map-tab focus-ring px-3 py-1 bg-primary text-white rounded-full text-xs" data-tab="stops">Tappe</button>
@@ -229,7 +564,7 @@
                     </div>
                 </div>
                 
-                <div id="interactive-map" class="flex-1 relative bg-white overflow-hidden">
+                <div id="interactive-map" class="map-collapsed lg:map-expanded lg:flex-1 relative bg-white overflow-hidden" style="height: 0; max-height: 0;">
                     <svg class="absolute inset-0 w-full h-full" style="background: linear-gradient(135deg, #E8F3F1 0%, #D4E9E7 100%);">
                         <defs>
                             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -342,9 +677,9 @@
             <!-- Itinerary section -->
             <section id="itinerary-section" class="flex-1 flex flex-col">
                 
-                <div class="p-4 bg-white border-b border-gray-200">
+                <div class="p-3 md:p-4 bg-white border-b border-gray-200">
                     <div class="flex items-center justify-between">
-                        <h2 class="font-semibold text-gray-900">Itinerario Giorno per Giorno</h2>
+                        <h2 class="text-sm md:text-base font-semibold text-gray-900">Itinerario Giorno per Giorno</h2>
                         <button id="add-day-btn" class="focus-ring px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs transition-colors">
                             <i class="fa-solid fa-plus mr-1"></i>Aggiungi
                         </button>
@@ -355,12 +690,12 @@
                     
                     <!-- Day 1 -->
                     <div id="day-1" class="border-b border-gray-200">
-                        <div class="day-header p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div class="day-header p-3 md:p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
                                     <div>
-                                        <h3 class="font-semibold text-gray-900">Giorno 1 - 10 ottobre</h3>
+                                        <h3 class="text-sm md:text-base font-semibold text-gray-900">Giorno 1 - 10 ottobre</h3>
                                         <p class="text-sm text-gray-600">Arrivo a Tokyo • 3 attività</p>
                                     </div>
                                 </div>
@@ -371,72 +706,75 @@
                             </div>
                         </div>
                         
-                        <div class="day-content p-4 space-y-3">
+                        <div class="day-content p-3 md:p-4 space-y-2 md:space-y-3">
                             
-                            <div class="draggable bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all" draggable="true">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex items-start space-x-3 flex-1">
-                                        <div class="text-sm font-medium text-gray-500">09:00</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-semibold text-gray-900">Arrivo Aeroporto Narita</h4>
-                                            <p class="text-sm text-gray-600">Transfer • 60 min • €25</p>
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
+                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">09:00</div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Arrivo Aeroporto Narita</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Transfer • 60 min • €25</p>
                                             <div class="flex items-center space-x-2 mt-2">
                                                 <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Transfer</span>
+                                                <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex items-center space-x-2">
-                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                    <div class="flex items-center space-x-1 flex-shrink-0">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
                                             <i class="fa-solid fa-edit text-gray-400"></i>
                                         </button>
-                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
                                             <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="draggable bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all" draggable="true">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex items-start space-x-3 flex-1">
-                                        <div class="text-sm font-medium text-gray-500">11:30</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-semibold text-gray-900">Check-in Hotel Shibuya</h4>
-                                            <p class="text-sm text-gray-600">Alloggio • 30 min • €0</p>
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
+                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">11:30</div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Check-in Hotel Shibuya</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Alloggio • 30 min • €0</p>
                                             <div class="flex items-center space-x-2 mt-2">
                                                 <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">✓ Prenotato</span>
+                                                <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex items-center space-x-2">
-                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                    <div class="flex items-center space-x-1 flex-shrink-0">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
                                             <i class="fa-solid fa-edit text-gray-400"></i>
                                         </button>
-                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
                                             <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="draggable bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all" draggable="true">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex items-start space-x-3 flex-1">
-                                        <div class="text-sm font-medium text-gray-500">14:00</div>
-                                        <div class="flex-1">
-                                            <h4 class="font-semibold text-gray-900">Tempio Senso-ji</h4>
-                                            <p class="text-sm text-gray-600">Visita • 120 min • €0</p>
-                                            <div class="flex items-center space-x-2 mt-2">
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
+                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">14:00</div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Tempio Senso-ji</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Visita • 120 min • €0</p>
+                                            <div class="flex items-center flex-wrap gap-2 mt-2">
                                                 <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Cultura</span>
-                                                <button class="text-xs text-primary hover:text-indigo-700">Prenota tour</button>
+                                                <button class="text-xs text-primary hover:text-indigo-700 font-medium">Prenota tour</button>
+                                                <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex items-center space-x-2">
-                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                    <div class="flex items-center space-x-1 flex-shrink-0">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
                                             <i class="fa-solid fa-edit text-gray-400"></i>
                                         </button>
-                                        <button class="focus-ring p-1 hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
                                             <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
                                         </button>
                                     </div>
@@ -444,7 +782,7 @@
                             </div>
 
                             <div class="text-center py-4">
-                                <button class="focus-ring add-activity-btn px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                <button class="focus-ring add-activity-btn min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
                                     <i class="fa-solid fa-plus mr-2"></i>Aggiungi attività
                                 </button>
                             </div>
@@ -453,12 +791,12 @@
 
                     <!-- Day 2 -->
                     <div id="day-2" class="border-b border-gray-200">
-                        <div class="day-header p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div class="day-header p-3 md:p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
                                     <div>
-                                        <h3 class="font-semibold text-gray-900">Giorno 2 - 11 ottobre</h3>
+                                        <h3 class="text-sm md:text-base font-semibold text-gray-900">Giorno 2 - 11 ottobre</h3>
                                         <p class="text-sm text-gray-600">Tokyo Centro • 4 attività</p>
                                     </div>
                                 </div>
@@ -476,7 +814,7 @@
                 </div>
 
                 <!-- Bookings section -->
-                <div id="bookings-section" class="bg-white border-t border-gray-200 p-4">
+                <div id="bookings-section" class="bg-white border-t border-gray-200 p-3 md:p-4">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-semibold text-gray-900 flex items-center">
                             Prenotazioni
@@ -485,27 +823,41 @@
                         <button id="manage-bookings-btn" class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium">Gestisci tutto</button>
                     </div>
                     
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid fa-plane text-yellow-600"></i>
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-900">Volo Milano-Tokyo</p>
-                                    <p class="text-xs text-gray-600">10 ott • €800-1200</p>
+                    <div class="space-y-3">
+                        <div class="booking-urgent flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                            <div class="flex items-start sm:items-center space-x-3 flex-1">
+                                <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-plane text-yellow-600 text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <p class="text-sm md:text-base font-semibold text-gray-900">Volo Milano-Tokyo</p>
+                                        <span class="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">Urgente</span>
+                                    </div>
+                                    <p class="text-xs md:text-sm text-gray-600">10 ott • €800-1200 • 2 persone</p>
                                 </div>
                             </div>
-                            <button class="focus-ring px-3 py-1 bg-primary text-white rounded text-xs hover:bg-indigo-700 transition-colors">Prenota</button>
+                            <button class="focus-ring min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap">
+                                <i class="fa-solid fa-calendar-check mr-1"></i>Prenota Ora
+                            </button>
                         </div>
                         
-                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid fa-bed text-green-600"></i>
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-900">Hotel Tokyo</p>
-                                    <p class="text-xs text-gray-600">10-15 ott • ✓ Prenotato</p>
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-start sm:items-center space-x-3 flex-1">
+                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-bed text-green-600 text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <p class="text-sm md:text-base font-semibold text-gray-900">Hotel Tokyo</p>
+                                        <i class="fa-solid fa-check-circle text-green-600 text-sm"></i>
+                                    </div>
+                                    <p class="text-xs md:text-sm text-gray-600">10-15 ott • 5 notti • ✓ Confermato</p>
                                 </div>
                             </div>
-                            <button class="focus-ring px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs">Codice: ABC123</button>
+                            <button class="focus-ring min-h-[44px] px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors whitespace-nowrap">
+                                <i class="fa-solid fa-ticket mr-1"></i>ABC123
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -526,6 +878,258 @@
 
 <script>
 window.addEventListener('load', function() {
+    // Check if we're on tablet/mobile (< 1024px)
+    function isMobileOrTablet() {
+        return window.innerWidth < 1024;
+    }
+    
+    // Touch detection utility
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Touch coordinates helper
+    function getTouchCoords(e) {
+        const touch = e.touches ? e.touches[0] : e;
+        return { x: touch.clientX, y: touch.clientY };
+    }
+    
+    // Ripple effect helper
+    function createRipple(element, x, y) {
+        const ripple = document.createElement('span');
+        ripple.style.cssText = `
+            position: absolute;
+            left: ${x}px;
+            top: ${y}px;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(79, 70, 229, 0.3);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: ripple-animation 0.6s ease-out;
+        `;
+        element.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+    }
+    
+    // Add ripple animation to document
+    if (!document.getElementById('ripple-animation')) {
+        const style = document.createElement('style');
+        style.id = 'ripple-animation';
+        style.textContent = `
+            @keyframes ripple-animation {
+                to {
+                    width: 200px;
+                    height: 200px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Mobile & Tablet sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    
+    function openSidebar() {
+        sidebar.classList.add('open');
+        sidebarBackdrop.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        sidebarBackdrop.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function(e) {
+            if (isTouch) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                createRipple(this, x, y);
+            }
+            openSidebar();
+        });
+    }
+    
+    sidebarBackdrop.addEventListener('click', closeSidebar);
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (!isMobileOrTablet()) {
+            closeSidebar();
+        }
+    });
+    
+    // Swipe gesture for sidebar (mobile/tablet only)
+    if (isTouch && sidebar) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchCurrentX = 0;
+        let isSwiping = false;
+        
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            
+            // Detect swipe from left edge to open sidebar
+            if (touchStartX < 20 && isMobileOrTablet() && !sidebar.classList.contains('open')) {
+                isSwiping = true;
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', function(e) {
+            if (!isSwiping) return;
+            
+            touchCurrentX = e.touches[0].clientX;
+            const deltaX = touchCurrentX - touchStartX;
+            
+            if (deltaX > 50) {
+                openSidebar();
+                isSwiping = false;
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchend', function() {
+            isSwiping = false;
+        });
+        
+        // Swipe sidebar to close
+        sidebar.addEventListener('touchstart', function(e) {
+            if (!sidebar.classList.contains('open')) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        sidebar.addEventListener('touchmove', function(e) {
+            if (!sidebar.classList.contains('open')) return;
+            
+            touchCurrentX = e.touches[0].clientX;
+            const deltaX = touchCurrentX - touchStartX;
+            const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+            
+            // Only close if horizontal swipe is dominant
+            if (deltaX < -50 && deltaY < 30) {
+                closeSidebar();
+            }
+        }, { passive: true });
+    }
+    
+    // Mobile & Tablet map toggle
+    const toggleMapBtn = document.getElementById('toggle-map-btn');
+    const interactiveMap = document.getElementById('interactive-map');
+    const mapToggleIcon = document.querySelector('.map-toggle-icon');
+    const mapToggleText = toggleMapBtn?.querySelector('span');
+    let mapExpanded = false;
+    
+    function toggleMap() {
+        mapExpanded = !mapExpanded;
+        
+        if (mapExpanded) {
+            interactiveMap.classList.remove('map-collapsed');
+            interactiveMap.classList.add('map-expanded');
+            interactiveMap.style.height = '300px';
+            interactiveMap.style.maxHeight = '400px';
+            mapToggleIcon.classList.remove('fa-chevron-down');
+            mapToggleIcon.classList.add('fa-chevron-up');
+            mapToggleText.textContent = 'Nascondi';
+        } else {
+            interactiveMap.classList.add('map-collapsed');
+            interactiveMap.classList.remove('map-expanded');
+            interactiveMap.style.height = '0';
+            interactiveMap.style.maxHeight = '0';
+            mapToggleIcon.classList.add('fa-chevron-down');
+            mapToggleIcon.classList.remove('fa-chevron-up');
+            mapToggleText.textContent = 'Mostra';
+        }
+    }
+    
+    if (toggleMapBtn) {
+        toggleMapBtn.addEventListener('click', function(e) {
+            if (isTouch) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                createRipple(this, x, y);
+            }
+            toggleMap();
+        });
+    }
+    
+    // Swipe gesture on map section header to expand/collapse (mobile only)
+    if (isTouch && isMobileOrTablet()) {
+        const mapSection = document.getElementById('map-section');
+        const mapHeader = mapSection?.querySelector('.p-4.border-b');
+        let mapTouchStartY = 0;
+        
+        if (mapHeader) {
+            mapHeader.addEventListener('touchstart', function(e) {
+                mapTouchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            mapHeader.addEventListener('touchmove', function(e) {
+                const deltaY = e.touches[0].clientY - mapTouchStartY;
+                
+                // Swipe down to expand, up to collapse
+                if (!mapExpanded && deltaY > 50) {
+                    toggleMap();
+                } else if (mapExpanded && deltaY < -50) {
+                    toggleMap();
+                }
+            }, { passive: true });
+        }
+    }
+    
+    // Fullscreen map modal (mobile only)
+    const mapFullscreenModal = document.getElementById('map-fullscreen-modal');
+    const fullscreenMapBtn = document.getElementById('fullscreen-map-btn');
+    const closeFullscreenMap = document.getElementById('close-fullscreen-map');
+    
+    function openFullscreenMap() {
+        if (mapFullscreenModal) {
+            mapFullscreenModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            navigator.vibrate?.(30);
+        }
+    }
+    
+    function closeFullscreenMapModal() {
+        if (mapFullscreenModal) {
+            mapFullscreenModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    }
+    
+    if (fullscreenMapBtn) {
+        addTouchFeedback(fullscreenMapBtn, openFullscreenMap);
+    }
+    
+    if (closeFullscreenMap) {
+        addTouchFeedback(closeFullscreenMap, closeFullscreenMapModal);
+    }
+    
+    // Fullscreen map tabs
+    const fullscreenMapTabs = document.querySelectorAll('.fullscreen-map-tab');
+    fullscreenMapTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            fullscreenMapTabs.forEach(t => {
+                t.classList.remove('bg-primary', 'text-white');
+                t.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            this.classList.add('bg-primary', 'text-white');
+            this.classList.remove('bg-gray-100', 'text-gray-700');
+            
+            if (isTouch) {
+                const rect = this.getBoundingClientRect();
+                createRipple(this, rect.width / 2, rect.height / 2);
+            }
+        });
+    });
+    
     // Day toggle functionality
     const dayHeaders = document.querySelectorAll('.day-header');
     
@@ -546,11 +1150,12 @@ window.addEventListener('load', function() {
         });
     });
 
-    // Drag and drop for activities
+    // Drag and drop for activities (desktop)
     const draggables = document.querySelectorAll('.draggable');
     let draggedElement = null;
 
     draggables.forEach(element => {
+        // Desktop drag events
         element.addEventListener('dragstart', function(e) {
             draggedElement = this;
             this.classList.add('dragging');
@@ -590,6 +1195,117 @@ window.addEventListener('load', function() {
         element.addEventListener('dragleave', function(e) {
             this.classList.remove('drop-zone');
         });
+        
+        // Touch events for mobile drag & drop
+        if (isTouch) {
+            let touchStartTime = 0;
+            let longPressTimer = null;
+            let isDraggingTouch = false;
+            let touchStartY = 0;
+            let currentY = 0;
+            let scrollStartY = 0;
+            
+            element.addEventListener('touchstart', function(e) {
+                touchStartTime = Date.now();
+                touchStartY = e.touches[0].clientY;
+                scrollStartY = window.scrollY;
+                
+                // Long press to activate drag (500ms)
+                longPressTimer = setTimeout(() => {
+                    isDraggingTouch = true;
+                    draggedElement = this;
+                    this.classList.add('touch-dragging');
+                    navigator.vibrate?.(50); // Haptic feedback if available
+                    
+                    // Prevent scrolling while dragging
+                    document.body.style.overflow = 'hidden';
+                }, 500);
+            }, { passive: true });
+            
+            element.addEventListener('touchmove', function(e) {
+                currentY = e.touches[0].clientY;
+                const deltaY = Math.abs(currentY - touchStartY);
+                
+                // Cancel long press if user scrolls
+                if (deltaY > 10 && !isDraggingTouch) {
+                    clearTimeout(longPressTimer);
+                }
+                
+                // Visual feedback during drag
+                if (isDraggingTouch) {
+                    e.preventDefault();
+                    
+                    // Move element with touch
+                    const touch = e.touches[0];
+                    this.style.position = 'fixed';
+                    this.style.left = touch.clientX - (this.offsetWidth / 2) + 'px';
+                    this.style.top = touch.clientY - (this.offsetHeight / 2) + 'px';
+                    this.style.zIndex = '9999';
+                    
+                    // Highlight drop zones
+                    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                    document.querySelectorAll('.draggable').forEach(el => {
+                        el.classList.remove('drop-zone');
+                    });
+                    if (elementBelow?.classList.contains('draggable') && elementBelow !== this) {
+                        elementBelow.classList.add('drop-zone');
+                    }
+                }
+            });
+            
+            element.addEventListener('touchend', function(e) {
+                clearTimeout(longPressTimer);
+                
+                if (isDraggingTouch) {
+                    e.preventDefault();
+                    
+                    // Find drop target
+                    const touch = e.changedTouches[0];
+                    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                    
+                    // Reset styles
+                    this.style.position = '';
+                    this.style.left = '';
+                    this.style.top = '';
+                    this.style.zIndex = '';
+                    this.classList.remove('touch-dragging');
+                    
+                    // Perform drop
+                    if (elementBelow?.classList.contains('draggable') && elementBelow !== this) {
+                        const parent = elementBelow.parentNode;
+                        const nextSibling = elementBelow.nextElementSibling;
+                        parent.insertBefore(this, nextSibling);
+                        showNotification('Attività spostata con successo');
+                        navigator.vibrate?.(30);
+                    }
+                    
+                    // Clean up
+                    document.querySelectorAll('.drop-zone').forEach(zone => {
+                        zone.classList.remove('drop-zone');
+                    });
+                    document.body.style.overflow = '';
+                    isDraggingTouch = false;
+                    draggedElement = null;
+                }
+            });
+            
+            element.addEventListener('touchcancel', function() {
+                clearTimeout(longPressTimer);
+                if (isDraggingTouch) {
+                    this.style.position = '';
+                    this.style.left = '';
+                    this.style.top = '';
+                    this.style.zIndex = '';
+                    this.classList.remove('touch-dragging');
+                    document.querySelectorAll('.drop-zone').forEach(zone => {
+                        zone.classList.remove('drop-zone');
+                    });
+                    document.body.style.overflow = '';
+                    isDraggingTouch = false;
+                    draggedElement = null;
+                }
+            });
+        }
     });
 
     // Notification function
@@ -625,44 +1341,69 @@ window.addEventListener('load', function() {
         });
     });
 
-    // Navigation buttons
-    document.getElementById('back-btn').addEventListener('click', () => {
+    // Helper: Add touch feedback to button
+    function addTouchFeedback(button, callback) {
+        if (!button) return;
+        
+        button.addEventListener('click', function(e) {
+            if (isTouch) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                createRipple(this, x, y);
+            }
+            callback();
+        });
+        
+        if (isTouch) {
+            button.addEventListener('touchstart', function() {
+                this.classList.add('touch-active');
+            }, { passive: true });
+            
+            button.addEventListener('touchend', function() {
+                setTimeout(() => this.classList.remove('touch-active'), 150);
+            }, { passive: true });
+        }
+    }
+    
+    // Navigation buttons with touch feedback
+    addTouchFeedback(document.getElementById('back-btn'), () => {
         window.location.href = 'trips.html';
     });
 
-    document.getElementById('open-chat-btn').addEventListener('click', () => {
+    addTouchFeedback(document.getElementById('open-chat-btn'), () => {
         window.location.href = 'chat.html';
     });
 
-    document.getElementById('new-trip-btn').addEventListener('click', () => {
+    addTouchFeedback(document.getElementById('new-trip-btn'), () => {
         window.location.href = 'chat.html';
     });
 
-    document.getElementById('share-btn').addEventListener('click', () => {
+    addTouchFeedback(document.getElementById('share-btn'), () => {
         console.log('Condividi viaggio');
         showNotification('Link condivisione copiato');
     });
 
-    document.getElementById('menu-btn').addEventListener('click', () => {
+    addTouchFeedback(document.getElementById('menu-btn'), () => {
         console.log('Apri menu');
     });
 
-    document.getElementById('expand-map-btn').addEventListener('click', () => {
+    addTouchFeedback(document.getElementById('expand-map-btn'), () => {
         console.log('Espandi mappa');
     });
 
-    document.getElementById('add-day-btn').addEventListener('click', () => {
+    addTouchFeedback(document.getElementById('add-day-btn'), () => {
         console.log('Aggiungi giorno');
     });
 
-    document.getElementById('manage-bookings-btn').addEventListener('click', () => {
+    addTouchFeedback(document.getElementById('manage-bookings-btn'), () => {
         console.log('Gestisci prenotazioni');
     });
 
-    // Add activity buttons
+    // Add activity buttons with touch feedback
     const addActivityBtns = document.querySelectorAll('.add-activity-btn');
     addActivityBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        addTouchFeedback(btn, () => {
             console.log('Aggiungi attività');
             showNotification('Nuova attività aggiunta');
         });
