@@ -12,6 +12,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -286,6 +288,20 @@
         html {
             scroll-behavior: smooth;
         }
+        
+        /* Leaflet custom styles */
+        .leaflet-stop-marker {
+            background: transparent !important;
+            border: none !important;
+        }
+        .leaflet-custom-popup .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            font-family: 'Inter', sans-serif;
+        }
+        .leaflet-custom-popup .leaflet-popup-content {
+            margin: 10px 14px;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -328,95 +344,15 @@
         
         <!-- Fullscreen map content -->
         <div class="flex-1 relative bg-white overflow-hidden">
-            <svg class="absolute inset-0 w-full h-full" style="background: linear-gradient(135deg, #E8F3F1 0%, #D4E9E7 100%);">
-                <defs>
-                    <pattern id="grid-fullscreen" width="40" height="40" patternUnits="userSpaceOnUse">
-                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#CBD5E1" stroke-width="0.5" opacity="0.3"/>
-                    </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#grid-fullscreen)"/>
-                
-                <line x1="15%" y1="25%" x2="45%" y2="30%" stroke="#4F46E5" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
-                <line x1="45%" y1="30%" x2="45%" y2="70%" stroke="#06B6D4" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
-                <line x1="45%" y1="70%" x2="85%" y2="75%" stroke="#4F46E5" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
-            </svg>
+            <div id="leaflet-map-fullscreen" style="width: 100%; height: 100%;"></div>
             
-            <!-- Copy of map markers (same as original map) -->
-            <div class="map-marker marker-active" style="left: 15%; top: 25%;">
-                <div class="w-16 h-16 bg-red-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-xl border-4 border-white">A</div>
-                <div class="absolute top-20 left-1/2 -translate-x-1/2 bg-white rounded-lg px-4 py-2 shadow-lg whitespace-nowrap">
-                    <div class="text-sm font-semibold text-gray-900">Milano</div>
-                    <div class="text-xs text-gray-500">10 ott, 08:00</div>
-                </div>
-            </div>
-            
-            <div class="route-icon" style="left: 30%; top: 27.5%;">
-                <i class="fa-solid fa-plane text-gray-600"></i>
-                <span class="text-sm text-gray-600 ml-2">12h 30m</span>
-            </div>
-            
-            <div class="map-marker" style="left: 45%; top: 30%;">
-                <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg shadow-xl border-4 border-white">1</div>
-                <div class="absolute top-20 left-1/2 -translate-x-1/2 bg-white rounded-lg px-4 py-2 shadow-lg whitespace-nowrap">
-                    <div class="text-sm font-semibold text-gray-900">Tokyo</div>
-                    <div class="text-xs text-gray-500">10-15 ott</div>
-                    <div class="flex items-center mt-1">
-                        <i class="fa-solid fa-cloud-sun text-yellow-500 text-sm mr-1"></i>
-                        <span class="text-xs text-gray-600">22°/15°</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="route-icon" style="left: 45%; top: 50%;">
-                <i class="fa-solid fa-train text-secondary"></i>
-                <span class="text-sm text-gray-600 ml-2">2h 15m</span>
-            </div>
-            
-            <div class="map-marker" style="left: 45%; top: 70%;">
-                <div class="w-16 h-16 bg-secondary text-white rounded-full flex items-center justify-center font-bold text-lg shadow-xl border-4 border-white">2</div>
-                <div class="absolute top-20 left-1/2 -translate-x-1/2 bg-white rounded-lg px-4 py-2 shadow-lg whitespace-nowrap">
-                    <div class="text-sm font-semibold text-gray-900">Kyoto</div>
-                    <div class="text-xs text-gray-500">15-20 ott</div>
-                    <div class="flex items-center mt-1">
-                        <i class="fa-solid fa-cloud-rain text-blue-500 text-sm mr-1"></i>
-                        <span class="text-xs text-gray-600">19°/13°</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="route-icon" style="left: 65%; top: 72.5%;">
-                <i class="fa-solid fa-plane text-gray-600"></i>
-                <span class="text-sm text-gray-600 ml-2">13h 45m</span>
-            </div>
-            
-            <div class="map-marker" style="left: 85%; top: 75%;">
-                <div class="w-16 h-16 bg-red-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-xl border-4 border-white">B</div>
-                <div class="absolute top-20 left-1/2 -translate-x-1/2 bg-white rounded-lg px-4 py-2 shadow-lg whitespace-nowrap">
-                    <div class="text-sm font-semibold text-gray-900">Milano</div>
-                    <div class="text-xs text-gray-500">20 ott, 18:30</div>
-                </div>
-            </div>
-            
-            <!-- Map controls -->
-            <div class="absolute top-4 right-4 flex flex-col space-y-3">
-                <button class="focus-ring w-12 h-12 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Zoom in">
-                    <i class="fa-solid fa-plus text-gray-700 text-lg"></i>
-                </button>
-                <button class="focus-ring w-12 h-12 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Zoom out">
-                    <i class="fa-solid fa-minus text-gray-700 text-lg"></i>
-                </button>
-                <button class="focus-ring w-12 h-12 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Centra">
-                    <i class="fa-solid fa-location-crosshairs text-gray-700 text-lg"></i>
-                </button>
-            </div>
-            
-            <!-- Distance info -->
-            <div class="absolute bottom-4 left-4 bg-white rounded-lg px-4 py-3 shadow-lg">
+            <!-- Distance info overlay -->
+            <div class="absolute bottom-4 left-4 bg-white rounded-lg px-4 py-3 shadow-lg z-[1000]">
                 <div class="flex items-center space-x-3">
                     <i class="fa-solid fa-route text-primary text-lg"></i>
                     <div>
                         <div class="text-xs text-gray-600">Distanza totale</div>
-                        <div class="text-base font-semibold text-gray-900">~19,500 km</div>
+                        <div class="text-base font-semibold text-gray-900">~150 km</div>
                     </div>
                 </div>
             </div>
@@ -448,10 +384,10 @@
         <div id="trip-list" class="flex-1 overflow-y-auto p-4 space-y-2">
             <div class="trip-list-item p-3 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 cursor-pointer transition-colors" data-trip-id="1">
                 <div class="flex items-start justify-between mb-1">
-                    <h3 class="font-semibold text-gray-900 text-sm">Tokyo & Kyoto</h3>
+                    <h3 class="font-semibold text-gray-900 text-sm">Langhe Wine Country</h3>
                     <span class="text-xs text-gray-500">Oggi</span>
                 </div>
-                <p class="text-xs text-gray-600">10-20 ottobre, 2 persone</p>
+                <p class="text-xs text-gray-600">10-20 ottobre 2026, 2 persone</p>
                 <div class="flex items-center mt-2">
                     <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">In corso</span>
                 </div>
@@ -459,10 +395,10 @@
             
             <div class="trip-list-item p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors" data-trip-id="2">
                 <div class="flex items-start justify-between mb-1">
-                    <h3 class="font-semibold text-gray-900 text-sm">Weekend a Parigi</h3>
+                    <h3 class="font-semibold text-gray-900 text-sm">Weekend Lago Maggiore</h3>
                     <span class="text-xs text-gray-500">2 giorni fa</span>
                 </div>
-                <p class="text-xs text-gray-600">15-17 novembre, 4 persone</p>
+                <p class="text-xs text-gray-600">15-17 novembre 2026, 4 persone</p>
                 <div class="flex items-center mt-2">
                     <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">In arrivo</span>
                 </div>
@@ -470,7 +406,7 @@
             
             <div class="trip-list-item p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors" data-trip-id="3">
                 <div class="flex items-start justify-between mb-1">
-                    <h3 class="font-semibold text-gray-900 text-sm">Road trip Toscana</h3>
+                    <h3 class="font-semibold text-gray-900 text-sm">Road trip Valle d'Aosta</h3>
                     <span class="text-xs text-gray-500">1 settimana fa</span>
                 </div>
                 <p class="text-xs text-gray-600">1-8 dicembre, 2 persone</p>
@@ -496,7 +432,7 @@
                     <button id="back-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors" aria-label="Indietro">
                         <i class="fa-solid fa-arrow-left text-gray-600"></i>
                     </button>
-                    <h1 class="text-base sm:text-lg md:text-xl font-semibold text-gray-900 truncate">Tokyo & Kyoto</h1>
+                    <h1 class="text-base sm:text-lg md:text-xl font-semibold text-gray-900 truncate">Langhe Wine Country</h1>
                 </div>
                 <div class="flex items-center space-x-1 sm:space-x-2">
                     <button id="share-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors" aria-label="Condividi">
@@ -523,7 +459,7 @@
                     </div>
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-wallet text-accent"></i>
-                        <span class="text-sm sm:text-base text-gray-600">€3000</span>
+                        <span class="text-sm sm:text-base text-gray-600">€2800</span>
                     </div>
                 </div>
                 <button id="open-chat-btn" class="focus-ring w-full sm:w-auto min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
@@ -532,7 +468,7 @@
             </div>
             
             <div class="flex flex-wrap gap-2">
-                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Milano → Tokyo → Kyoto</span>
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Torino → Alba → Barolo → La Morra</span>
                 <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">✓ Documenti</span>
                 <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">! Prenotazioni</span>
             </div>
@@ -541,7 +477,7 @@
         <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
             
             <!-- Map section -->
-            <section id="map-section" class="w-full md:w-80 lg:w-96 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col">
+            <section id="map-section" class="w-full lg:flex-1 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col">
                 <div class="p-4 border-b border-gray-200">
                     <div class="flex items-center justify-between mb-3">
                         <h2 class="text-sm md:text-base font-semibold text-gray-900">Mappa Itinerario</h2>
@@ -565,109 +501,15 @@
                 </div>
                 
                 <div id="interactive-map" class="map-collapsed lg:map-expanded lg:flex-1 relative bg-white overflow-hidden" style="height: 0; max-height: 0;">
-                    <svg class="absolute inset-0 w-full h-full" style="background: linear-gradient(135deg, #E8F3F1 0%, #D4E9E7 100%);">
-                        <defs>
-                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#CBD5E1" stroke-width="0.5" opacity="0.3"/>
-                            </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#grid)"/>
-                        
-                        <line x1="15%" y1="25%" x2="45%" y2="30%" stroke="#4F46E5" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
-                        <line x1="45%" y1="30%" x2="45%" y2="70%" stroke="#06B6D4" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
-                        <line x1="45%" y1="70%" x2="85%" y2="75%" stroke="#4F46E5" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
-                    </svg>
+                    <div id="leaflet-map-inline" style="width: 100%; height: 100%; min-height: 300px;"></div>
                     
-                    <!-- Milano start -->
-                    <div class="map-marker marker-active" style="left: 15%; top: 25%;">
-                        <div class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center font-bold shadow-xl border-4 border-white">
-                            A
-                        </div>
-                        <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
-                            <div class="text-xs font-semibold text-gray-900">Milano</div>
-                            <div class="text-xs text-gray-500">10 ott, 08:00</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Flight info -->
-                    <div class="route-icon" style="left: 30%; top: 27.5%;">
-                        <i class="fa-solid fa-plane text-gray-600 text-sm"></i>
-                        <span class="text-xs text-gray-600 ml-1">12h 30m</span>
-                    </div>
-                    
-                    <!-- Tokyo -->
-                    <div class="map-marker" style="left: 45%; top: 30%;">
-                        <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold shadow-xl border-4 border-white">
-                            1
-                        </div>
-                        <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
-                            <div class="text-xs font-semibold text-gray-900">Tokyo</div>
-                            <div class="text-xs text-gray-500">10-15 ott</div>
-                            <div class="flex items-center mt-1">
-                                <i class="fa-solid fa-cloud-sun text-yellow-500 text-xs mr-1"></i>
-                                <span class="text-xs text-gray-600">22°/15°</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Train info -->
-                    <div class="route-icon" style="left: 45%; top: 50%;">
-                        <i class="fa-solid fa-train text-secondary text-sm"></i>
-                        <span class="text-xs text-gray-600 ml-1">2h 15m</span>
-                    </div>
-                    
-                    <!-- Kyoto -->
-                    <div class="map-marker" style="left: 45%; top: 70%;">
-                        <div class="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center font-bold shadow-xl border-4 border-white">
-                            2
-                        </div>
-                        <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
-                            <div class="text-xs font-semibold text-gray-900">Kyoto</div>
-                            <div class="text-xs text-gray-500">15-20 ott</div>
-                            <div class="flex items-center mt-1">
-                                <i class="fa-solid fa-cloud-rain text-blue-500 text-xs mr-1"></i>
-                                <span class="text-xs text-gray-600">19°/13°</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Return flight -->
-                    <div class="route-icon" style="left: 65%; top: 72.5%;">
-                        <i class="fa-solid fa-plane text-gray-600 text-sm"></i>
-                        <span class="text-xs text-gray-600 ml-1">13h 45m</span>
-                    </div>
-                    
-                    <!-- Milano end -->
-                    <div class="map-marker" style="left: 85%; top: 75%;">
-                        <div class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center font-bold shadow-xl border-4 border-white">
-                            B
-                        </div>
-                        <div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
-                            <div class="text-xs font-semibold text-gray-900">Milano</div>
-                            <div class="text-xs text-gray-500">20 ott, 18:30</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Map controls -->
-                    <div class="absolute top-4 right-4 flex flex-col space-y-2">
-                        <button class="focus-ring w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Zoom in">
-                            <i class="fa-solid fa-plus text-gray-700"></i>
-                        </button>
-                        <button class="focus-ring w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Zoom out">
-                            <i class="fa-solid fa-minus text-gray-700"></i>
-                        </button>
-                        <button class="focus-ring w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors" aria-label="Centra">
-                            <i class="fa-solid fa-location-crosshairs text-gray-700"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Distance info -->
-                    <div class="absolute bottom-4 left-4 bg-white rounded-lg px-3 py-2 shadow-lg">
+                    <!-- Distance info overlay -->
+                    <div class="absolute bottom-4 left-4 bg-white rounded-lg px-3 py-2 shadow-lg z-[1000]">
                         <div class="flex items-center space-x-2">
                             <i class="fa-solid fa-route text-primary"></i>
                             <div>
                                 <div class="text-xs text-gray-600">Distanza totale</div>
-                                <div class="text-sm font-semibold text-gray-900">~19,500 km</div>
+                                <div class="text-sm font-semibold text-gray-900">~150 km</div>
                             </div>
                         </div>
                     </div>
@@ -675,7 +517,7 @@
             </section>
 
             <!-- Itinerary section -->
-            <section id="itinerary-section" class="flex-1 flex flex-col">
+            <section id="itinerary-section" class="w-full lg:w-[550px] xl:w-[600px] flex flex-col">
                 
                 <div class="p-3 md:p-4 bg-white border-b border-gray-200">
                     <div class="flex items-center justify-between">
@@ -696,11 +538,11 @@
                                     <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
                                     <div>
                                         <h3 class="text-sm md:text-base font-semibold text-gray-900">Giorno 1 - 10 ottobre</h3>
-                                        <p class="text-sm text-gray-600">Arrivo a Tokyo • 3 attività</p>
+                                        <p class="text-sm text-gray-600">Arrivo ad Alba • 3 attività</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <span class="text-sm text-gray-500">€180</span>
+                                    <span class="text-sm text-gray-500">€95</span>
                                     <i class="fa-solid fa-chevron-down text-gray-400 transition-transform day-arrow"></i>
                                 </div>
                             </div>
@@ -713,10 +555,10 @@
                                     <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
                                         <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">09:00</div>
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Arrivo Aeroporto Narita</h4>
-                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Transfer • 60 min • €25</p>
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Arrivo a Torino Porta Nuova</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Treno da Milano • 75 min • €15</p>
                                             <div class="flex items-center space-x-2 mt-2">
-                                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Transfer</span>
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Viaggio</span>
                                                 <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
                                             </div>
                                         </div>
@@ -735,10 +577,10 @@
                             <div class="draggable bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-all" draggable="true">
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
-                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">11:30</div>
+                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">12:30</div>
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Check-in Hotel Shibuya</h4>
-                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Alloggio • 30 min • €0</p>
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Check-in Hotel Langhe</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Alloggio • 15 min • €0</p>
                                             <div class="flex items-center space-x-2 mt-2">
                                                 <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">✓ Prenotato</span>
                                                 <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
@@ -759,13 +601,13 @@
                             <div class="draggable bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-all" draggable="true">
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
-                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">14:00</div>
+                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">14:30</div>
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Tempio Senso-ji</h4>
-                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Visita • 120 min • €0</p>
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Caccia al tartufo bianco</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Esperienza • 120 min • €50</p>
                                             <div class="flex items-center flex-wrap gap-2 mt-2">
-                                                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Cultura</span>
-                                                <button class="text-xs text-primary hover:text-indigo-700 font-medium">Prenota tour</button>
+                                                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Enogastronomia</span>
+                                                <button class="text-xs text-primary hover:text-indigo-700 font-medium">Prenota esperienza</button>
                                                 <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
                                             </div>
                                         </div>
@@ -797,11 +639,11 @@
                                     <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
                                     <div>
                                         <h3 class="text-sm md:text-base font-semibold text-gray-900">Giorno 2 - 11 ottobre</h3>
-                                        <p class="text-sm text-gray-600">Tokyo Centro • 4 attività</p>
+                                        <p class="text-sm text-gray-600">Degustazioni ad Alba • 4 attività</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <span class="text-sm text-gray-500">€220</span>
+                                    <span class="text-sm text-gray-500">€145</span>
                                     <i class="fa-solid fa-chevron-right text-gray-400 transition-transform day-arrow"></i>
                                 </div>
                             </div>
@@ -827,14 +669,14 @@
                         <div class="booking-urgent flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
                             <div class="flex items-start sm:items-center space-x-3 flex-1">
                                 <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <i class="fa-solid fa-plane text-yellow-600 text-lg"></i>
+                                    <i class="fa-solid fa-car text-yellow-600 text-lg"></i>
                                 </div>
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-2 mb-1">
-                                        <p class="text-sm md:text-base font-semibold text-gray-900">Volo Milano-Tokyo</p>
+                                        <p class="text-sm md:text-base font-semibold text-gray-900">Auto noleggio Torino-Milano</p>
                                         <span class="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">Urgente</span>
                                     </div>
-                                    <p class="text-xs md:text-sm text-gray-600">10 ott • €800-1200 • 2 persone</p>
+                                    <p class="text-xs md:text-sm text-gray-600">10-20 ott • €380-450 • Auto categoria C</p>
                                 </div>
                             </div>
                             <button class="focus-ring min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap">
@@ -849,7 +691,7 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="flex items-center space-x-2 mb-1">
-                                        <p class="text-sm md:text-base font-semibold text-gray-900">Hotel Tokyo</p>
+                                        <p class="text-sm md:text-base font-semibold text-gray-900">Hotel Alba</p>
                                         <i class="fa-solid fa-check-circle text-green-600 text-sm"></i>
                                     </div>
                                     <p class="text-xs md:text-sm text-gray-600">10-15 ott • 5 notti • ✓ Confermato</p>
@@ -1426,6 +1268,120 @@ window.addEventListener('load', function() {
     document.querySelector('#day-1 .day-content').classList.remove('hidden');
     document.querySelector('#day-1 .day-arrow').classList.remove('fa-chevron-right');
     document.querySelector('#day-1 .day-arrow').classList.add('fa-chevron-down');
+
+    // ===== Leaflet Map Initialization =====
+    const tripStops = [
+        { name: 'Milano', subtitle: 'Partenza • 10 ott, 08:00', lat: 45.4642, lng: 9.1900, color: '#EF4444', label: 'A', size: 36, transport: null },
+        { name: 'Torino', subtitle: 'Transito', lat: 45.0703, lng: 7.6869, color: '#9333EA', label: 'T', size: 28, transport: { icon: 'fa-train', time: '1h 15m', color: '#9333EA' } },
+        { name: 'Alba', subtitle: '10-13 ott • 3 notti', lat: 44.7009, lng: 8.0357, color: '#4F46E5', label: '1', size: 40, transport: { icon: 'fa-car', time: '1h 10m', color: '#4F46E5' } },
+        { name: 'Barolo', subtitle: '13-16 ott • 3 notti', lat: 44.6093, lng: 7.9428, color: '#06B6D4', label: '2', size: 40, transport: { icon: 'fa-car', time: '15 min', color: '#06B6D4' } },
+        { name: 'La Morra', subtitle: '17-19 ott • 3 notti', lat: 44.6375, lng: 7.9333, color: '#F59E0B', label: '3', size: 40, transport: { icon: 'fa-car', time: '10 min', color: '#F59E0B' } },
+        { name: 'Milano', subtitle: 'Ritorno • 20 ott, 18:30', lat: 45.4642, lng: 9.1900, color: '#EF4444', label: 'B', size: 36, transport: { icon: 'fa-car', time: '2h', color: '#4F46E5' } }
+    ];
+
+    const routeColors = ['#9333EA', '#4F46E5', '#06B6D4', '#F59E0B', '#EF4444'];
+
+    function createStopIcon(stop) {
+        return L.divIcon({
+            className: 'leaflet-stop-marker',
+            html: '<div style="width:' + stop.size + 'px;height:' + stop.size + 'px;background:' + stop.color + ';border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:' + (stop.size > 30 ? '16' : '12') + 'px;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-family:Inter,sans-serif;">' + stop.label + '</div>',
+            iconSize: [stop.size, stop.size],
+            iconAnchor: [stop.size / 2, stop.size / 2],
+            popupAnchor: [0, -(stop.size / 2 + 4)]
+        });
+    }
+
+    function buildPopupContent(stop) {
+        let html = '<div style="font-family:Inter,sans-serif;min-width:120px;">';
+        html += '<div style="font-weight:600;font-size:14px;color:#111827;">' + stop.name + '</div>';
+        html += '<div style="font-size:12px;color:#6B7280;margin-top:2px;">' + stop.subtitle + '</div>';
+        html += '</div>';
+        return html;
+    }
+
+    function initLeafletMap(containerId, opts) {
+        const map = L.map(containerId, {
+            zoomControl: opts.zoomControl !== false,
+            attributionControl: true,
+            scrollWheelZoom: opts.scrollWheelZoom !== false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 18
+        }).addTo(map);
+
+        // Add route lines between stops
+        for (let i = 0; i < tripStops.length - 1; i++) {
+            const from = tripStops[i];
+            const to = tripStops[i + 1];
+            L.polyline([[from.lat, from.lng], [to.lat, to.lng]], {
+                color: routeColors[i],
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '10, 8'
+            }).addTo(map);
+        }
+
+        // Add markers
+        const markers = [];
+        tripStops.forEach(function(stop) {
+            const marker = L.marker([stop.lat, stop.lng], { icon: createStopIcon(stop) })
+                .bindPopup(buildPopupContent(stop), { offset: [0, -4], className: 'leaflet-custom-popup' })
+                .addTo(map);
+            markers.push(marker);
+        });
+
+        // Fit bounds to show all markers with padding
+        const group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.15));
+
+        return map;
+    }
+
+    // Initialize inline map (for desktop, or when expanded on mobile)
+    let inlineMap = null;
+    const inlineMapContainer = document.getElementById('leaflet-map-inline');
+    if (inlineMapContainer) {
+        // Use a ResizeObserver to initialize when the container becomes visible
+        const resizeObserver = new ResizeObserver(function(entries) {
+            for (const entry of entries) {
+                if (entry.contentRect.height > 50 && !inlineMap) {
+                    inlineMap = initLeafletMap('leaflet-map-inline', { zoomControl: true });
+                } else if (inlineMap) {
+                    inlineMap.invalidateSize();
+                }
+            }
+        });
+        resizeObserver.observe(inlineMapContainer);
+
+        // For desktop where it may be immediately visible
+        if (window.innerWidth >= 1024) {
+            setTimeout(function() {
+                if (!inlineMap && inlineMapContainer.offsetHeight > 50) {
+                    inlineMap = initLeafletMap('leaflet-map-inline', { zoomControl: true });
+                }
+            }, 300);
+        }
+    }
+
+    // Initialize fullscreen map when modal opens
+    let fullscreenMap = null;
+    const origOpenFullscreenMap = openFullscreenMap;
+    openFullscreenMap = function() {
+        origOpenFullscreenMap();
+        setTimeout(function() {
+            if (!fullscreenMap) {
+                fullscreenMap = initLeafletMap('leaflet-map-fullscreen', { zoomControl: true, scrollWheelZoom: true });
+            } else {
+                fullscreenMap.invalidateSize();
+            }
+        }, 350);
+    };
+    if (fullscreenMapBtn) {
+        fullscreenMapBtn.removeEventListener('click', origOpenFullscreenMap);
+        addTouchFeedback(fullscreenMapBtn, openFullscreenMap);
+    }
 });
 </script>
 

@@ -471,12 +471,12 @@ L’output della chat verso i sistemi a valle è un oggetto coerente con lo sche
       "start": "2025-10-12",
       "end": "2025-10-22",
       "flexibility": "low",
-      "timezone": "Asia/Tokyo",
+      "timezone": "Europe/Rome",
       "confidence": 0.96
     },
     "locations": [
-      {"canonical_name": "Tokyo", "type": "city", "place_id": "tokyo_jp", "confidence": 0.94},
-      {"canonical_name": "Kyoto", "type": "city", "place_id": "kyoto_jp", "confidence": 0.92}
+      {"canonical_name": "Alba", "type": "city", "place_id": "alba_it", "confidence": 0.94},
+      {"canonical_name": "Barolo", "type": "town", "place_id": "barolo_it", "confidence": 0.92}
     ],
     "people": {"adults": 2, "children": 0, "confidence": 0.99},
     "budget": {"amount": 2500, "currency": "EUR", "scope": "per_person", "confidence": 0.88},
@@ -488,8 +488,8 @@ L’output della chat verso i sistemi a valle è un oggetto coerente con lo sche
     "clarifications": []
   },
   "actions": [
-    {"type": "add_stop", "name": "Tokyo", "start_offset_days": 0, "nights": 4},
-    {"type": "add_stop", "name": "Kyoto", "start_offset_days": 4, "nights": 6}
+    {"type": "add_stop", "name": "Alba", "start_offset_days": 0, "nights": 5},
+    {"type": "add_stop", "name": "Barolo", "start_offset_days": 5, "nights": 5}
   ],
   "nlu_scores": {"intent_confidence": 0.93, "overall": 0.92}
 }
@@ -695,7 +695,7 @@ L’esempio seguente mostra un Delta di aggiunta Tappa e il relativo evento a va
   "command": "AddStop",
   "itinerary_id": "iti_abc123",
   "payload": {
-    "name": "Kyoto",
+    "name": "Barolo",
     "date_from": "2025-10-16",
     "nights": 3
   },
