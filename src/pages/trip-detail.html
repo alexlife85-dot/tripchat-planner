@@ -88,6 +88,20 @@
             outline: 3px solid rgba(79, 70, 229, 0.5);
             outline-offset: 2px;
         }
+
+        .day-arrow {
+            display: inline-flex;
+            width: 16px;
+            justify-content: center;
+            transition: transform 0.2s ease;
+            transform: rotate(0deg);
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .day-arrow.rotated {
+            transform: rotate(90deg);
+        }
         
         /* Mobile sidebar overlay */
         .sidebar-overlay {
@@ -367,7 +381,12 @@
         
         <div id="sidebar-header" class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between mb-4">
-                <h1 class="text-xl font-bold text-gray-900">TripChat</h1>
+                <div class="flex items-center space-x-2">
+                    <img src="../../public/assets/Logo_I-Travel.jpg"
+                         alt="I-Travel logo"
+                         class="w-10 h-10 rounded-lg object-contain">
+                    <h1 class="text-xl font-bold text-gray-900">I-Travel</h1>
+                </div>
                 <button id="new-trip-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Nuovo viaggio">
                     <i class="fa-solid fa-plus text-gray-600"></i>
                 </button>
@@ -416,6 +435,21 @@
             </div>
         </div>
 
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex items-center space-x-3">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop"
+                     alt="Profilo utente"
+                     class="w-10 h-10 rounded-full object-cover">
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-gray-900">Peggy Fleming</p>
+                    <button id="sidebar-settings-link" class="text-xs text-gray-500 hover:text-primary">Impostazioni</button>
+                </div>
+                <button id="sidebar-profile-menu-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Menu profilo">
+                    <i class="fa-solid fa-ellipsis-vertical text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+
     </aside>
 
     <!-- Main content -->
@@ -438,12 +472,68 @@
                     <button id="share-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors" aria-label="Condividi">
                         <i class="fa-solid fa-share text-gray-600"></i>
                     </button>
+                    <button id="lang-switch" type="button" class="focus-ring min-h-[44px] flex items-center justify-center px-2 hover:bg-gray-100 rounded-lg transition-colors space-x-1" aria-label="Switch language">
+                        <i class="fa-solid fa-globe text-gray-600 text-sm" aria-hidden="true"></i>
+                        <span class="text-xs font-bold text-gray-600" data-lang-label>EN</span>
+                    </button>
                     <button id="menu-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors" aria-label="Menu">
                         <i class="fa-solid fa-ellipsis-vertical text-gray-600"></i>
                     </button>
                 </div>
             </div>
         </header>
+
+        <!-- Share mini banner -->
+        <div id="share-mini-banner" class="hidden fixed top-20 right-2 left-2 sm:left-auto sm:right-4 sm:w-96 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 fade-in">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">Condividi viaggio</h3>
+                        <p class="text-xs text-gray-500 mt-1">Invia il piano con un canale o condividilo con un amico</p>
+                    </div>
+                    <button id="close-share-mini-banner" class="focus-ring min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Chiudi condivisione">
+                        <i class="fa-solid fa-xmark text-gray-500"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 border-b border-gray-100">
+                <div class="grid grid-cols-4 gap-2">
+                    <button id="share-option-link" class="focus-ring flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors" aria-label="Condividi link">
+                        <i class="fa-solid fa-link text-gray-700"></i>
+                        <span class="text-[11px] text-gray-700">Link</span>
+                    </button>
+                    <button id="share-option-facebook" class="focus-ring flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors" aria-label="Condividi su Facebook">
+                        <i class="fa-brands fa-facebook text-blue-600"></i>
+                        <span class="text-[11px] text-blue-700">Facebook</span>
+                    </button>
+                    <button id="share-option-instagram" class="focus-ring flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-pink-50 hover:bg-pink-100 transition-colors" aria-label="Condividi su Instagram">
+                        <i class="fa-brands fa-instagram text-pink-600"></i>
+                        <span class="text-[11px] text-pink-700">Instagram</span>
+                    </button>
+                    <button id="share-option-whatsapp" class="focus-ring flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-green-50 hover:bg-green-100 transition-colors" aria-label="Condividi su WhatsApp">
+                        <i class="fa-brands fa-whatsapp text-green-600"></i>
+                        <span class="text-[11px] text-green-700">WhatsApp</span>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Condividi con amici</p>
+                <div class="rounded-xl border border-gray-200 p-3 bg-gray-50">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop"
+                             alt="Théo Lefèvre"
+                             class="w-11 h-11 rounded-full object-cover border border-gray-200">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-gray-900 truncate">Théo Lefèvre</p>
+                            <p class="text-xs text-gray-500">Amico preferito</p>
+                        </div>
+                        <button id="share-friend-theo" class="focus-ring px-3 py-2 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-indigo-700 transition-colors">
+                            Condividi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Trip header -->
         <section id="trip-header" class="bg-white border-b border-gray-200 p-3 md:p-4">
@@ -463,7 +553,7 @@
                     </div>
                 </div>
                 <button id="open-chat-btn" class="focus-ring w-full sm:w-auto min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                    Apri in Chat
+                    Prenota tutto ora
                 </button>
             </div>
             
@@ -543,7 +633,7 @@
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-sm text-gray-500">€95</span>
-                                    <i class="fa-solid fa-chevron-down text-gray-400 transition-transform day-arrow"></i>
+                                    <span class="text-gray-400 day-arrow rotated">›</span>
                                 </div>
                             </div>
                         </div>
@@ -639,17 +729,95 @@
                                     <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
                                     <div>
                                         <h3 class="text-sm md:text-base font-semibold text-gray-900">Giorno 2 - 11 ottobre</h3>
-                                        <p class="text-sm text-gray-600">Degustazioni ad Alba • 4 attività</p>
+                                        <p class="text-sm text-gray-600">Castelli e degustazioni • 3 attività</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-sm text-gray-500">€145</span>
-                                    <i class="fa-solid fa-chevron-right text-gray-400 transition-transform day-arrow"></i>
+                                    <span class="text-gray-400 day-arrow rotated">›</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="day-content hidden">
+                        <div class="day-content p-3 md:p-4 space-y-2 md:space-y-3">
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
+                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">07:30</div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Morning endurance run - 10 km</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Outdoor • 65 min • €0 • Riverfront loop in Alba</p>
+                                            <div class="flex items-center flex-wrap gap-2 mt-2">
+                                                <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">Running</span>
+                                                <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1 flex-shrink-0">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                            <i class="fa-solid fa-edit text-gray-400"></i>
+                                        </button>
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                            <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
+                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">15:30</div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Grinzane Cavour Castle visit</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Culture • 90 min • €18 • Guided tour and museum access</p>
+                                            <div class="flex items-center flex-wrap gap-2 mt-2">
+                                                <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full">Culture</span>
+                                                <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1 flex-shrink-0">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                            <i class="fa-solid fa-edit text-gray-400"></i>
+                                        </button>
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                            <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="draggable bg-white border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition-all" draggable="true">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex items-start space-x-2 md:space-x-3 flex-1 min-w-0">
+                                        <div class="time-badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-lg text-xs font-semibold">17:15</div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-sm md:text-base font-semibold text-gray-900 truncate">Barolo cellar tasting experience</h4>
+                                            <p class="text-xs md:text-sm text-gray-600 mt-1">Food & Wine • 75 min • €42 • 4-label tasting with local pairings</p>
+                                            <div class="flex items-center flex-wrap gap-2 mt-2">
+                                                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Food & Wine</span>
+                                                <button class="text-xs text-primary hover:text-indigo-700 font-medium">Prenota esperienza</button>
+                                                <i class="fa-solid fa-grip-vertical text-gray-300 text-xs"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1 flex-shrink-0">
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Modifica" aria-label="Modifica attività">
+                                            <i class="fa-solid fa-edit text-gray-400"></i>
+                                        </button>
+                                        <button class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded" title="Menu" aria-label="Menu attività">
+                                            <i class="fa-solid fa-ellipsis-vertical text-gray-400"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center py-2">
+                                <button class="focus-ring add-activity-btn min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                    <i class="fa-solid fa-plus mr-2"></i>Aggiungi attività
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -660,12 +828,12 @@
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-semibold text-gray-900 flex items-center">
                             Prenotazioni
-                            <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">3 da fare</span>
+                            <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">4 to book</span>
                         </h3>
                         <button id="manage-bookings-btn" class="focus-ring text-xs text-primary hover:text-indigo-700 font-medium">Gestisci tutto</button>
                     </div>
                     
-                    <div class="space-y-3">
+                    <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
                         <div class="booking-urgent flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
                             <div class="flex items-start sm:items-center space-x-3 flex-1">
                                 <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -677,6 +845,60 @@
                                         <span class="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">Urgente</span>
                                     </div>
                                     <p class="text-xs md:text-sm text-gray-600">10-20 ott • €380-450 • Auto categoria C</p>
+                                </div>
+                            </div>
+                            <button class="focus-ring min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap">
+                                <i class="fa-solid fa-calendar-check mr-1"></i>Prenota Ora
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                            <div class="flex items-start sm:items-center space-x-3 flex-1">
+                                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-paw text-purple-600 text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <p class="text-sm md:text-base font-semibold text-gray-900">Caccia al tartufo bianco</p>
+                                        <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">Needs booking</span>
+                                    </div>
+                                    <p class="text-xs md:text-sm text-gray-600">10 ott • 14:30 • 120 min • €50</p>
+                                </div>
+                            </div>
+                            <button class="focus-ring min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap">
+                                <i class="fa-solid fa-calendar-check mr-1"></i>Prenota Ora
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                            <div class="flex items-start sm:items-center space-x-3 flex-1">
+                                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-landmark text-indigo-600 text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <p class="text-sm md:text-base font-semibold text-gray-900">Grinzane Cavour Castle visit</p>
+                                        <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">Needs booking</span>
+                                    </div>
+                                    <p class="text-xs md:text-sm text-gray-600">11 ott • 15:30 • 90 min • €18</p>
+                                </div>
+                            </div>
+                            <button class="focus-ring min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap">
+                                <i class="fa-solid fa-calendar-check mr-1"></i>Prenota Ora
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 bg-violet-50 border border-violet-200 rounded-lg">
+                            <div class="flex items-start sm:items-center space-x-3 flex-1">
+                                <div class="w-10 h-10 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-wine-glass text-violet-600 text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <p class="text-sm md:text-base font-semibold text-gray-900">Barolo cellar tasting experience</p>
+                                        <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">Needs booking</span>
+                                    </div>
+                                    <p class="text-xs md:text-sm text-gray-600">11 ott • 17:15 • 75 min • €42</p>
                                 </div>
                             </div>
                             <button class="focus-ring min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm whitespace-nowrap">
@@ -710,6 +932,29 @@
 
     </main>
 
+</div>
+
+<!-- Sidebar profile menu dropdown (hidden by default) -->
+<div id="sidebar-profile-menu-dropdown" class="hidden fixed bottom-20 left-6 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50">
+    <div class="p-2">
+        <a href="home.html" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-home text-gray-600"></i>
+            <span class="text-sm text-gray-900">Home</span>
+        </a>
+        <a href="trips.html" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-suitcase text-gray-600"></i>
+            <span class="text-sm text-gray-900">I miei viaggi</span>
+        </a>
+        <a href="profile.html" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-user-circle text-gray-600"></i>
+            <span class="text-sm text-gray-900">Profilo</span>
+        </a>
+        <hr class="my-2">
+        <a href="login.html" class="flex items-center space-x-3 p-3 rounded-xl hover:bg-red-50 transition-colors text-red-600">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="text-sm">Esci</span>
+        </a>
+    </div>
 </div>
 
 <!-- Success notification -->
@@ -773,6 +1018,9 @@ window.addEventListener('load', function() {
     const sidebar = document.getElementById('sidebar');
     const sidebarBackdrop = document.getElementById('sidebar-backdrop');
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebarSettingsLink = document.getElementById('sidebar-settings-link');
+    const sidebarProfileMenuBtn = document.getElementById('sidebar-profile-menu-btn');
+    const sidebarProfileMenuDropdown = document.getElementById('sidebar-profile-menu-dropdown');
     
     function openSidebar() {
         sidebar.classList.add('open');
@@ -784,6 +1032,12 @@ window.addEventListener('load', function() {
         sidebar.classList.remove('open');
         sidebarBackdrop.classList.remove('open');
         document.body.style.overflow = '';
+    }
+
+    function closeSidebarProfileMenu() {
+        if (sidebarProfileMenuDropdown) {
+            sidebarProfileMenuDropdown.classList.add('hidden');
+        }
     }
     
     if (mobileMenuBtn) {
@@ -799,6 +1053,27 @@ window.addEventListener('load', function() {
     }
     
     sidebarBackdrop.addEventListener('click', closeSidebar);
+
+    // Sidebar profile banner functionality (same behavior as chat page)
+    if (sidebarSettingsLink) {
+        sidebarSettingsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'profile.html';
+        });
+    }
+
+    if (sidebarProfileMenuBtn && sidebarProfileMenuDropdown) {
+        sidebarProfileMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sidebarProfileMenuDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!sidebarProfileMenuDropdown.contains(e.target) && !sidebarProfileMenuBtn.contains(e.target)) {
+                closeSidebarProfileMenu();
+            }
+        });
+    }
     
     // Handle window resize
     window.addEventListener('resize', function() {
@@ -982,12 +1257,10 @@ window.addEventListener('load', function() {
             
             if (content.classList.contains('hidden')) {
                 content.classList.remove('hidden');
-                arrow.classList.remove('fa-chevron-right');
-                arrow.classList.add('fa-chevron-down');
+                arrow.classList.add('rotated');
             } else {
                 content.classList.add('hidden');
-                arrow.classList.remove('fa-chevron-down');
-                arrow.classList.add('fa-chevron-right');
+                arrow.classList.remove('rotated');
             }
         });
     });
@@ -1162,6 +1435,74 @@ window.addEventListener('load', function() {
         }, 3000);
     }
 
+    // Share mini-banner
+    const shareMiniBanner = document.getElementById('share-mini-banner');
+    const shareBtn = document.getElementById('share-btn');
+    const closeShareMiniBannerBtn = document.getElementById('close-share-mini-banner');
+    const shareOptionLinkBtn = document.getElementById('share-option-link');
+    const shareOptionFacebookBtn = document.getElementById('share-option-facebook');
+    const shareOptionInstagramBtn = document.getElementById('share-option-instagram');
+    const shareOptionWhatsappBtn = document.getElementById('share-option-whatsapp');
+    const shareFriendTheoBtn = document.getElementById('share-friend-theo');
+
+    function openShareMiniBanner() {
+        if (shareMiniBanner) {
+            shareMiniBanner.classList.remove('hidden');
+        }
+    }
+
+    function closeShareMiniBanner() {
+        if (shareMiniBanner) {
+            shareMiniBanner.classList.add('hidden');
+        }
+    }
+
+    function toggleShareMiniBanner() {
+        if (!shareMiniBanner) return;
+        shareMiniBanner.classList.toggle('hidden');
+    }
+
+    closeShareMiniBannerBtn?.addEventListener('click', function() {
+        closeShareMiniBanner();
+    });
+
+    shareOptionLinkBtn?.addEventListener('click', function() {
+        showNotification('Link copiato negli appunti');
+        closeShareMiniBanner();
+    });
+
+    shareOptionFacebookBtn?.addEventListener('click', function() {
+        showNotification('Condivisione su Facebook pronta');
+        closeShareMiniBanner();
+    });
+
+    shareOptionInstagramBtn?.addEventListener('click', function() {
+        showNotification('Condivisione su Instagram pronta');
+        closeShareMiniBanner();
+    });
+
+    shareOptionWhatsappBtn?.addEventListener('click', function() {
+        showNotification('Condivisione su WhatsApp pronta');
+        closeShareMiniBanner();
+    });
+
+    shareFriendTheoBtn?.addEventListener('click', function() {
+        showNotification('Viaggio condiviso con Théo Lefèvre');
+        closeShareMiniBanner();
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!shareMiniBanner || shareMiniBanner.classList.contains('hidden')) return;
+        if (shareMiniBanner.contains(e.target) || shareBtn?.contains(e.target)) return;
+        closeShareMiniBanner();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeShareMiniBanner();
+        }
+    });
+
     // Map tabs
     const mapTabs = document.querySelectorAll('.map-tab');
     mapTabs.forEach(tab => {
@@ -1222,8 +1563,7 @@ window.addEventListener('load', function() {
     });
 
     addTouchFeedback(document.getElementById('share-btn'), () => {
-        console.log('Condividi viaggio');
-        showNotification('Link condivisione copiato');
+        toggleShareMiniBanner();
     });
 
     addTouchFeedback(document.getElementById('menu-btn'), () => {
@@ -1266,8 +1606,9 @@ window.addEventListener('load', function() {
 
     // Initialize: open first day
     document.querySelector('#day-1 .day-content').classList.remove('hidden');
-    document.querySelector('#day-1 .day-arrow').classList.remove('fa-chevron-right');
-    document.querySelector('#day-1 .day-arrow').classList.add('fa-chevron-down');
+    document.querySelector('#day-1 .day-arrow').classList.add('rotated');
+    document.querySelector('#day-2 .day-content').classList.remove('hidden');
+    document.querySelector('#day-2 .day-arrow').classList.add('rotated');
 
     // ===== Leaflet Map Initialization =====
     const tripStops = [
@@ -1384,6 +1725,8 @@ window.addEventListener('load', function() {
     }
 });
 </script>
+
+<script src="../../public/js/i18n.js"></script>
 
 </body>
 </html>

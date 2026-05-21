@@ -54,9 +54,9 @@
     <div class="max-w-7xl mx-auto px-6 py-4">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
-                    <i class="fa-solid fa-comments text-white"></i>
-                </div>
+                <img src="../../public/assets/Logo_I-Travel.jpg"
+                     alt="I-Travel logo"
+                     class="w-12 h-12 rounded-xl object-contain">
                 <span class="text-xl font-bold text-gray-900">TripChat Planner</span>
             </div>
             <div class="flex items-center space-x-6">
@@ -71,8 +71,12 @@
                     <i class="fa-solid fa-bell text-gray-600 text-lg"></i>
                     <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">2</span>
                 </button>
+                <button id="lang-switch" type="button" class="focus-ring flex items-center space-x-1.5 px-2 py-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Switch language">
+                    <i class="fa-solid fa-globe text-gray-600" aria-hidden="true"></i>
+                    <span class="text-sm font-semibold text-gray-600" data-lang-label>EN</span>
+                </button>
                 <button id="profile-btn" class="focus-ring rounded-full" aria-label="Profilo">
-                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" 
                          alt="Profilo utente" 
                          class="w-10 h-10 rounded-full border-2 border-primary cursor-pointer">
                 </button>
@@ -98,6 +102,10 @@
                     <i class="fa-solid fa-file-import mr-2"></i>
                     Importa itinerario
                 </button>
+                <a href="business-interface.html" id="business-interface-btn" class="focus-ring bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white font-semibold py-4 px-8 rounded-xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all border border-purple-300/40">
+                    <i class="fa-solid fa-briefcase mr-2"></i>
+                    Explore the business interface
+                </a>
             </div>
             <div class="mt-8 text-sm text-indigo-100">
                 <a href="#" class="underline hover:text-white mr-4">Termini di servizio</a>
@@ -194,9 +202,9 @@
     <div class="max-w-7xl mx-auto px-6 py-8">
         <div class="flex flex-col md:flex-row justify-between items-center">
             <div class="flex items-center space-x-3 mb-4 md:mb-0">
-                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-comments text-white text-sm"></i>
-                </div>
+                <img src="../../public/assets/Logo_I-Travel.jpg"
+                     alt="I-Travel logo"
+                     class="w-10 h-10 rounded-lg object-contain">
                 <span class="font-bold text-gray-900">TripChat Planner</span>
             </div>
             <div class="flex items-center space-x-6 text-sm text-gray-600">
@@ -325,6 +333,8 @@ window.addEventListener('load', function() {
     }
 });
 </script>
+
+<script src="../../public/js/i18n.js"></script>
 
 </body>
 </html>

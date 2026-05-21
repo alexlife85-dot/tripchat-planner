@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="I-Travel business interface to curate Langhe activities for the assistant.">
+    <title>Business Interface - I-Travel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>window.FontAwesomeConfig = {autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .focus-ring:focus {
+            outline: 3px solid rgba(147, 51, 234, 0.45);
+            outline-offset: 2px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#9333EA',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-indigo-50 to-cyan-50 min-h-screen">
+
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <img src="../../public/assets/Logo_I-Travel.jpg"
+                 alt="I-Travel logo"
+                  class="w-12 h-12 rounded-xl object-contain">
+            <div>
+                <h1 class="text-lg font-bold text-gray-900">I-Travel Business Interface</h1>
+                <p class="text-xs text-gray-500">Experiences Catalog</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <a href="home.html" class="focus-ring px-4 py-2 rounded-lg bg-white border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i class="fa-solid fa-arrow-left mr-2"></i>
+                Back to Home
+            </a>
+            <button type="button" class="focus-ring flex items-center space-x-2 rounded-full bg-white border border-gray-200 pl-2 pr-3 py-1.5 hover:bg-gray-50 transition-colors" aria-label="Business profile">
+                <img src="https://images.unsplash.com/photo-1472396961693-142e6e269027?w=100&h=100&fit=crop"
+                     alt="Pro-Loco Langhe"
+                     class="w-8 h-8 rounded-full object-cover border border-purple-200">
+                <span class="text-sm font-semibold text-gray-700">Pro-Loco Langhe</span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-10">
+    <section class="mb-8">
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-8 text-white shadow-xl">
+            <h2 class="text-3xl font-bold mb-2">Curate Activities For The Assistant</h2>
+            <p class="text-purple-100 max-w-3xl">Use this page to manage local activities that I-Travel can propose during planning chats.</p>
+        </div>
+    </section>
+
+    <section class="grid lg:grid-cols-5 gap-6">
+        <div class="lg:col-span-3 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Activity Shortlist</h3>
+                <span class="text-xs px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-semibold">Featured</span>
+            </div>
+
+            <div id="activity-list" class="space-y-3">
+                <article class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Sunrise E-bike Ride Through La Morra Vineyards</h4>
+                            <p class="text-sm text-gray-600 mt-1">Outdoor • 2h 30m • Scenic route with local guide</p>
+                        </div>
+                        <i class="fa-solid fa-bicycle text-purple-600 mt-1"></i>
+                    </div>
+                </article>
+
+                <article class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">White Truffle Hunting In Alba With Trifolao</h4>
+                            <p class="text-sm text-gray-600 mt-1">Food & Wine • 3h • Includes truffle tasting session</p>
+                        </div>
+                        <i class="fa-solid fa-paw text-amber-600 mt-1"></i>
+                    </div>
+                </article>
+
+                <article class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Private Barolo Cellar Tasting In Historic Cantina</h4>
+                            <p class="text-sm text-gray-600 mt-1">Food & Wine • 2h • Vertical tasting experience</p>
+                        </div>
+                        <i class="fa-solid fa-wine-glass text-rose-600 mt-1"></i>
+                    </div>
+                </article>
+
+                <article class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Panoramic Trail Run Between Barbaresco And Neive</h4>
+                            <p class="text-sm text-gray-600 mt-1">Outdoor • 10 km • Mixed terrain and rolling hills</p>
+                        </div>
+                        <i class="fa-solid fa-person-running text-emerald-600 mt-1"></i>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 h-fit">
+            <h3 class="text-xl font-bold text-gray-900 mb-1">Add One Activity</h3>
+            <p class="text-sm text-gray-600 mb-5">Add a custom activity that can be suggested by the bot.</p>
+
+            <form id="add-activity-form" class="space-y-4">
+                <div>
+                    <label for="activity-name" class="block text-sm font-medium text-gray-700 mb-1">Activity Name</label>
+                    <input id="activity-name" type="text" required class="focus-ring w-full px-3 py-2.5 border border-gray-300 rounded-lg" placeholder="e.g. Sunset picnic in Barolo hills">
+                </div>
+
+                <div>
+                    <label for="activity-category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select id="activity-category" class="focus-ring w-full px-3 py-2.5 border border-gray-300 rounded-lg">
+                        <option>Outdoor</option>
+                        <option>Food & Wine</option>
+                        <option>Culture</option>
+                        <option>Wellness</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="activity-duration" class="block text-sm font-medium text-gray-700 mb-1">Estimated Duration</label>
+                    <input id="activity-duration" type="text" class="focus-ring w-full px-3 py-2.5 border border-gray-300 rounded-lg" placeholder="e.g. 2h">
+                </div>
+
+                <div>
+                    <label for="activity-notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <textarea id="activity-notes" rows="3" class="focus-ring w-full px-3 py-2.5 border border-gray-300 rounded-lg resize-none" placeholder="What makes this activity special?"></textarea>
+                </div>
+
+                <button type="submit" class="focus-ring w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white font-semibold hover:shadow-lg transition-all">
+                    <i class="fa-solid fa-plus mr-2"></i>
+                    Add Activity
+                </button>
+            </form>
+
+            <p id="add-feedback" class="hidden mt-4 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">Activity added to the list.</p>
+        </div>
+    </section>
+</main>
+
+<script>
+window.addEventListener('load', function() {
+    const form = document.getElementById('add-activity-form');
+    const list = document.getElementById('activity-list');
+    const feedback = document.getElementById('add-feedback');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('activity-name').value.trim();
+        const category = document.getElementById('activity-category').value;
+        const duration = document.getElementById('activity-duration').value.trim() || 'Flexible';
+        const notes = document.getElementById('activity-notes').value.trim() || 'Custom activity added from business interface';
+
+        if (!name) return;
+
+        const article = document.createElement('article');
+        article.className = 'p-4 rounded-xl border border-purple-200 bg-purple-50';
+        article.innerHTML =
+            '<div class="flex items-start justify-between gap-3">' +
+                '<div>' +
+                    '<h4 class="font-semibold text-gray-900"></h4>' +
+                    '<p class="text-sm text-gray-600 mt-1"></p>' +
+                '</div>' +
+                '<i class="fa-solid fa-star text-purple-600 mt-1"></i>' +
+            '</div>';
+
+        article.querySelector('h4').textContent = name;
+        article.querySelector('p').textContent = category + ' • ' + duration + ' • ' + notes;
+
+        list.prepend(article);
+
+        form.reset();
+        feedback.classList.remove('hidden');
+        setTimeout(function() {
+            feedback.classList.add('hidden');
+        }, 2200);
+    });
+});
+</script>
+
+<script src="../../public/js/i18n.js"></script>
+
+</body>
+</html>

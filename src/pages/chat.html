@@ -4,8 +4,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="TripChat Planner - Chat di pianificazione viaggi con intelligenza artificiale">
-    <title>Chat - TripChat Planner</title>
+    <meta name="description" content="I-Travel - Chat di pianificazione viaggi con intelligenza artificiale">
+    <title>Chat - I-Travel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>window.FontAwesomeConfig = {autoReplaceSvg: 'nest'};</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -293,7 +293,12 @@
         
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between mb-4">
-                <h1 class="text-xl font-bold text-gray-900">TripChat</h1>
+                <div class="flex items-center space-x-2">
+                    <img src="../../public/assets/Logo_I-Travel.jpg"
+                         alt="I-Travel logo"
+                        class="w-10 h-10 rounded-lg object-contain">
+                    <h1 class="text-xl font-bold text-gray-900">I-Travel</h1>
+                </div>
                 <button id="new-chat-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Nuova chat">
                     <i class="fa-solid fa-plus text-gray-600"></i>
                 </button>
@@ -335,11 +340,11 @@
 
         <div class="p-4 border-t border-gray-200">
             <div class="flex items-center space-x-3">
-                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" 
                      alt="Profilo utente" 
                      class="w-10 h-10 rounded-full object-cover">
                 <div class="flex-1">
-                    <p class="text-sm font-semibold text-gray-900">Maria Rossi</p>
+                        <p class="text-sm font-semibold text-gray-900">Peggy Fleming</p>
                     <button id="settings-link" class="text-xs text-gray-500 hover:text-primary">Impostazioni</button>
                 </div>
                 <button id="menu-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Menu">
@@ -360,11 +365,11 @@
                     <button id="mobile-menu-btn" class="focus-ring min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors lg:hidden" aria-label="Menu chat">
                         <i class="fa-solid fa-bars text-gray-600"></i>
                     </button>
-                    <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-robot text-white"></i>
-                    </div>
+                    <img src="../../public/assets/Logo_I-Travel.jpg"
+                         alt="I-Travel bot"
+                         class="w-8 h-8 md:w-10 md:h-10 rounded-full object-contain flex-shrink-0">
                     <div>
-                        <h2 class="font-semibold text-gray-900">Assistente TripChat</h2>
+                        <h2 class="font-semibold text-gray-900">Assistente I-Travel</h2>
                         <p class="text-xs text-green-600 flex items-center">
                             <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
                             Online
@@ -377,6 +382,10 @@
                     </button>
                     <button id="trip-info-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Info viaggio">
                         <i class="fa-solid fa-info-circle text-gray-600"></i>
+                    </button>
+                    <button id="lang-switch" type="button" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center space-x-1" aria-label="Switch language">
+                        <i class="fa-solid fa-globe text-gray-600 text-sm" aria-hidden="true"></i>
+                        <span class="text-xs font-bold text-gray-600" data-lang-label>EN</span>
                     </button>
                     <button id="back-home-btn" class="focus-ring p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Torna alla home">
                         <i class="fa-solid fa-home text-gray-600"></i>
@@ -431,12 +440,12 @@
             
             <!-- Bot message -->
             <div class="flex items-start space-x-2 md:space-x-3 message-enter">
-                <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-robot text-white text-xs md:text-sm"></i>
-                </div>
+                <img src="../../public/assets/Logo_I-Travel.jpg"
+                     alt="I-Travel bot"
+                     class="w-6 h-6 md:w-8 md:h-8 rounded-full object-contain flex-shrink-0">
                 <div class="flex-1">
                     <div class="bg-white rounded-2xl rounded-tl-none p-3 md:p-4 shadow-sm border border-gray-100 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
-                        <p class="text-gray-800">Ciao! 👋 Sono il tuo assistente di viaggio. Raccontami dove vorresti andare e ti aiuterò a creare l'itinerario perfetto!</p>
+                        <p class="text-gray-800">Ciao! 👋 Sono I-Travel, il tuo assistente di viaggio personale. Raccontami dove vorresti andare e ti aiuterò a creare l'itinerario perfetto!</p>
                     </div>
                     <span class="text-xs text-gray-500 mt-1 block">10:23</span>
                 </div>
@@ -447,21 +456,49 @@
                 <div class="flex-1 flex justify-end">
                     <div>
                         <div class="bg-primary rounded-2xl rounded-tr-none p-3 md:p-4 shadow-sm max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
-                            <p class="text-white">Vorrei fare 10 giorni nelle Langhe tra Alba e Barolo a ottobre, budget medio</p>
+                            <p class="text-white">I am planning a 10 days trip in Langhe from 10 to 20 Oct 2026. I would like to visit the most iconic places in Alba and Barolo. I will travel with my husband and before Langhe we will be visiting Milan for a couple of days. We would like to rent a car close to Langhe to avoid traffic in Milan. I am looking for mixing outdoor activities including truffle hunting with very local experiences, such as wine tasting. I am preparing an half Marathon and I'd love to practice some sessions taking advantage of the beautiful landscape and weather</p>
                         </div>
                         <span class="text-xs text-gray-500 mt-1 block text-right">10:24</span>
                     </div>
                 </div>
-                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" 
                      alt="User" 
+                     class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover flex-shrink-0">
+            </div>
+
+            <!-- Bot follow-up question -->
+            <div class="flex items-start space-x-2 md:space-x-3 message-enter">
+                <img src="../../public/assets/Logo_I-Travel.jpg"
+                     alt="I-Travel bot"
+                     class="w-6 h-6 md:w-8 md:h-8 rounded-full object-contain flex-shrink-0">
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl rounded-tl-none p-3 md:p-4 shadow-sm border border-gray-100 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
+                        <p class="text-gray-800">Ottimo contesto, grazie! Prima di costruire una bozza precisa, mi confermi che partirete da Milano? E per il lungo in preparazione mezza maratona, quale distanza target vuoi mantenere?</p>
+                    </div>
+                    <span class="text-xs text-gray-500 mt-1 block">10:25</span>
+                </div>
+            </div>
+
+            <!-- User clarification -->
+            <div class="flex items-start space-x-2 md:space-x-3 justify-end message-enter">
+                <div class="flex-1 flex justify-end">
+                    <div>
+                        <div class="bg-primary rounded-2xl rounded-tr-none p-3 md:p-4 shadow-sm max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
+                            <p class="text-white">Confermo: partiamo da Milano, Via della Spiga 10. Per il lungo punto a 10 km.</p>
+                        </div>
+                        <span class="text-xs text-gray-500 mt-1 block text-right">10:26</span>
+                    </div>
+                </div>
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop"
+                     alt="User"
                      class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover flex-shrink-0">
             </div>
 
             <!-- Bot message with checklist -->
             <div class="flex items-start space-x-2 md:space-x-3 message-enter">
-                <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-robot text-white text-xs md:text-sm"></i>
-                </div>
+                <img src="../../public/assets/Logo_I-Travel.jpg"
+                     alt="I-Travel bot"
+                     class="w-6 h-6 md:w-8 md:h-8 rounded-full object-contain flex-shrink-0">
                 <div class="flex-1">
                     <div class="bg-white rounded-2xl rounded-tl-none p-3 md:p-4 shadow-sm border border-gray-100 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                         <p class="text-gray-800 mb-3">Perfetto! Un viaggio nelle Langhe a ottobre è un'ottima scelta. 🍂 Ho capito:</p>
@@ -476,7 +513,11 @@
                             </div>
                             <div class="flex items-center space-x-2 text-sm">
                                 <i class="fa-solid fa-check-circle text-green-500"></i>
-                                <span><strong>Periodo:</strong> Ottobre</span>
+                                <span><strong>Numero persone:</strong> 2</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-sm">
+                                <i class="fa-solid fa-check-circle text-green-500"></i>
+                                <span><strong>Periodo:</strong> 10-20 Ottobre</span>
                             </div>
                             <div class="flex items-center space-x-2 text-sm">
                                 <i class="fa-solid fa-check-circle text-green-500"></i>
@@ -485,15 +526,7 @@
                         </div>
                         <p class="text-gray-800">Mi servono ancora alcune informazioni:</p>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-3 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
-                        <button class="quick-reply-chip chip-hover px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-sm font-medium text-blue-700 transition-all hover:bg-blue-100">
-                            <i class="fa-solid fa-calendar mr-1"></i>
-                            Date esatte
-                        </button>
-                        <button class="quick-reply-chip chip-hover px-4 py-2 bg-purple-50 border border-purple-200 rounded-full text-sm font-medium text-purple-700 transition-all hover:bg-purple-100">
-                            <i class="fa-solid fa-users mr-1"></i>
-                            Numero persone
-                        </button>
+                    <div class="grid grid-cols-1 gap-2 mt-3 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                         <button class="quick-reply-chip chip-hover px-4 py-2 bg-green-50 border border-green-200 rounded-full text-sm font-medium text-green-700 transition-all hover:bg-green-100">
                             <i class="fa-solid fa-wallet mr-1"></i>
                             Budget preciso
@@ -604,21 +637,21 @@
                 <div class="flex-1 flex justify-end">
                     <div>
                         <div class="bg-primary rounded-2xl rounded-tr-none p-3 md:p-4 shadow-sm max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
-                            <p class="text-white">Saremo in 2, dal 10 al 20 ottobre, budget circa 1500€ a persona</p>
+                            <p class="text-white">Budget preciso: circa 1500€ a persona.</p>
                         </div>
                         <span class="text-xs text-gray-500 mt-1 block text-right">10:26</span>
                     </div>
                 </div>
-                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" 
                      alt="User" 
                      class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover flex-shrink-0">
             </div>
 
             <!-- Bot message with summary -->
             <div class="flex items-start space-x-2 md:space-x-3 message-enter">
-                <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-robot text-white text-xs md:text-sm"></i>
-                </div>
+                <img src="../../public/assets/Logo_I-Travel.jpg"
+                     alt="I-Travel bot"
+                     class="w-6 h-6 md:w-8 md:h-8 rounded-full object-contain flex-shrink-0">
                 <div class="flex-1">
                     <div class="bg-white rounded-2xl rounded-tl-none p-3 md:p-4 shadow-sm border border-gray-100 max-w-[85%] sm:max-w-md md:max-w-xl lg:max-w-2xl">
                         <p class="text-gray-800 mb-3">Eccellente! ✨ Ho tutte le informazioni necessarie. Il tuo viaggio include:</p>
@@ -692,7 +725,7 @@
                 </div>
                 
                 <p class="text-xs text-gray-500 mt-2 text-center">
-                    TripChat può commettere errori. Verifica sempre le informazioni importanti.
+                    I-Travel può commettere errori. Verifica sempre le informazioni importanti.
                 </p>
             </div>
         </div>
@@ -946,13 +979,13 @@ window.addEventListener('load', function() {
                         <span class="text-xs text-gray-500 mt-1 block text-right">${time}</span>
                     </div>
                 </div>
-                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="User" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" alt="User" class="w-8 h-8 rounded-full object-cover flex-shrink-0">
             `;
         } else {
             messageDiv.innerHTML = `
-                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-robot text-white text-sm"></i>
-                </div>
+                <img src="../../public/assets/Logo_I-Travel.jpg"
+                     alt="I-Travel bot"
+                     class="w-8 h-8 rounded-full object-contain flex-shrink-0">
                 <div class="flex-1">
                     <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100 max-w-lg">
                         <p class="text-gray-800">${content}</p>
@@ -973,9 +1006,9 @@ window.addEventListener('load', function() {
         typingDiv.id = 'typing-indicator';
         typingDiv.className = 'flex items-start space-x-3 message-enter';
         typingDiv.innerHTML = `
-            <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
-                <i class="fa-solid fa-robot text-white text-sm"></i>
-            </div>
+            <img src="../../public/assets/Logo_I-Travel.jpg"
+                 alt="I-Travel bot"
+                 class="w-8 h-8 rounded-full object-contain flex-shrink-0">
             <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-100">
                 <div class="typing-indicator flex space-x-1">
                     <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
@@ -1071,10 +1104,111 @@ window.addEventListener('load', function() {
     });
     newChatBtn.addEventListener('click', () => location.reload());
 
+    // ── Mock conversation replay on page load ──────────────────────────
+    (function replayMockChat() {
+        // Snapshot the pre-rendered mock messages before the user sends anything
+        const msgs = Array.from(
+            messagesContainer.querySelectorAll(':scope > .message-enter')
+        );
+        if (!msgs.length) return;
+
+        function showUserTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator-user';
+            typingDiv.className = 'flex items-start space-x-2 md:space-x-3 justify-end message-enter';
+            typingDiv.innerHTML = `
+                <div class="flex-1 flex justify-end">
+                    <div class="bg-primary rounded-2xl rounded-tr-none px-3 py-2 md:px-4 md:py-3 shadow-sm">
+                        <div class="typing-indicator flex space-x-1">
+                            <span class="w-2 h-2 bg-white/80 rounded-full"></span>
+                            <span class="w-2 h-2 bg-white/80 rounded-full"></span>
+                            <span class="w-2 h-2 bg-white/80 rounded-full"></span>
+                        </div>
+                    </div>
+                </div>
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop"
+                     alt="User"
+                     class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover flex-shrink-0">
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function removeUserTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator-user');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Hide them all immediately so the page starts empty
+        msgs.forEach(el => { el.style.display = 'none'; });
+
+        // Schedule: [isBot, typingIndicatorMs, pauseAfterRevealMs]
+        // Both bot and user messages show typing before the bubble appears.
+        const schedule = [
+            [true,  1100, 600],  // Bot:  "Ciao! Sono il tuo assistente..."
+            [false, 1000, 2500], // User: long "I am planning a 10 days trip..." (+2s pause)
+            [true,  1800, 450],  // Bot:  follow-up questions after long prompt
+            [false, 1000, 500],  // User: departure + long run distance clarification
+            [true,  2200, 400],  // Bot:  checklist "Perfetto! Un viaggio..."
+            [true,   900, 500],  // Bot:  map preview "Itinerario riconosciuto"
+            [false, 1100, 500],  // User: "Saremo in 2, dal 10 al 20 ottobre..."
+            [true,  1700,   0],  // Bot:  summary "Eccellente! Ho tutte..."
+        ];
+
+        const extraGapMs = 2000; // User request: add +2s between each message
+
+        let t = 600; // initial pause before the first message appears
+
+        msgs.forEach((el, i) => {
+            const [isBot, typingMs, pauseAfterMs] = schedule[i] || [false, 0, 400];
+
+            if (typingMs > 0) {
+                // Show typing indicator (bot/user), then replace with the real bubble
+                setTimeout(() => {
+                    if (isBot) {
+                        showTypingIndicator();
+                    } else {
+                        showUserTypingIndicator();
+                    }
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, t);
+                t += typingMs;
+                setTimeout(() => {
+                    if (isBot) {
+                        removeTypingIndicator();
+                    } else {
+                        removeUserTypingIndicator();
+                    }
+                    el.style.display = '';
+                    // Restart the slide-in animation
+                    el.classList.remove('message-enter');
+                    void el.offsetWidth; // force reflow
+                    el.classList.add('message-enter');
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, t);
+            } else {
+                // Fallback: reveal immediately if typing is disabled
+                setTimeout(() => {
+                    el.style.display = '';
+                    el.classList.remove('message-enter');
+                    void el.offsetWidth;
+                    el.classList.add('message-enter');
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, t);
+            }
+
+            t += pauseAfterMs + 300 + extraGapMs;
+        });
+    })();
+
     // Initial scroll - commented out to show top of chat on load
     // scrollToBottom();
 });
 </script>
+
+<script src="../../public/js/i18n.js"></script>
 
 </body>
 </html>

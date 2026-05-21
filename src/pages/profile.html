@@ -85,10 +85,16 @@
                 <i class="fa-solid fa-arrow-left text-lg"></i>
                 <span class="text-sm font-medium">Indietro</span>
             </button>
-            <div class="flex items-center space-x-3">
-                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
-                <div class="w-2 h-2 bg-primary rounded-full"></div>
-                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            <div class="flex items-center space-x-4">
+                <button id="lang-switch" type="button" class="focus-ring flex items-center space-x-1.5 px-2 py-1.5 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Switch language">
+                    <i class="fa-solid fa-globe text-gray-600 text-sm" aria-hidden="true"></i>
+                    <span class="text-sm font-semibold text-gray-600" data-lang-label>EN</span>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                    <div class="w-2 h-2 bg-primary rounded-full"></div>
+                    <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                </div>
             </div>
         </div>
     </header>
@@ -112,7 +118,7 @@
                     <div class="flex items-center space-x-4">
                         <div class="relative">
                             <img id="avatar-image" 
-                                 src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop" 
+                                 src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop" 
                                  alt="Avatar" 
                                  class="w-20 h-20 rounded-full object-cover border-4 border-gray-100">
                             <button id="change-avatar-btn" class="focus-ring absolute -bottom-1 -right-1 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-indigo-700 transition-colors" aria-label="Cambia foto">
@@ -120,6 +126,7 @@
                             </button>
                         </div>
                         <div>
+                            <p class="text-base font-semibold text-gray-900">Peggy Fleming</p>
                             <p class="text-sm text-gray-600">Aggiungi una foto per personalizzare il tuo profilo</p>
                         </div>
                     </div>
@@ -321,7 +328,7 @@ window.addEventListener('load', function() {
     const changeAvatarBtn = document.getElementById('change-avatar-btn');
     const avatarImage = document.getElementById('avatar-image');
     
-    let selectedTravelStyles = [];
+    let selectedTravelStyles = ['adventure', 'slow'];
     let draggedElement = null;
 
     // Bio character count
@@ -348,19 +355,32 @@ window.addEventListener('load', function() {
     budgetSlider.dispatchEvent(new Event('input'));
 
     // Travel style chips
+    function applyTravelStyleSelection() {
+        travelStyleChips.forEach(chip => {
+            const style = chip.dataset.style;
+            if (selectedTravelStyles.includes(style)) {
+                chip.classList.add('border-primary', 'bg-blue-50');
+                chip.classList.remove('border-gray-200');
+            } else {
+                chip.classList.remove('border-primary', 'bg-blue-50');
+                chip.classList.add('border-gray-200');
+            }
+        });
+    }
+
+    applyTravelStyleSelection();
+
     travelStyleChips.forEach(chip => {
         chip.addEventListener('click', function() {
             const style = this.dataset.style;
             
             if (selectedTravelStyles.includes(style)) {
                 selectedTravelStyles = selectedTravelStyles.filter(s => s !== style);
-                this.classList.remove('border-primary', 'bg-blue-50');
-                this.classList.add('border-gray-200');
             } else {
                 selectedTravelStyles.push(style);
-                this.classList.add('border-primary', 'bg-blue-50');
-                this.classList.remove('border-gray-200');
             }
+
+            applyTravelStyleSelection();
         });
     });
 
@@ -470,6 +490,8 @@ window.addEventListener('load', function() {
     });
 });
 </script>
+
+<script src="../../public/js/i18n.js"></script>
 
 </body>
 </html>
