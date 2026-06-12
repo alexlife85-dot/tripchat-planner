@@ -535,6 +535,35 @@
             </div>
         </div>
 
+        <!-- Booking progress modal -->
+        <div id="booking-modal" class="hidden fixed inset-0 z-[10000]">
+            <div id="booking-modal-backdrop" class="absolute inset-0 bg-black/40"></div>
+            <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="relative z-[10001] w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 fade-in">
+                    <div id="booking-progress-state">
+                        <div class="flex items-center justify-center mb-4">
+                            <div class="spinner"></div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 text-center">Booking in progress</h3>
+                        <p class="text-sm text-gray-600 text-center mt-2">Locking transport, activities, and stays...</p>
+                    </div>
+
+                    <div id="booking-success-state" class="hidden">
+                        <div class="flex items-center justify-center mb-4">
+                            <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+                                <i class="fa-solid fa-check text-green-600 text-2xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 text-center">Booking completed</h3>
+                        <p class="text-sm text-gray-600 text-center mt-2">All selected services booked successfully.</p>
+                        <button id="booking-modal-close" class="focus-ring w-full mt-5 min-h-[44px] px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                            Done
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Trip header -->
         <section id="trip-header" class="bg-white border-b border-gray-200 p-3 md:p-4">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-3">
@@ -1444,6 +1473,11 @@ window.addEventListener('load', function() {
     const shareOptionInstagramBtn = document.getElementById('share-option-instagram');
     const shareOptionWhatsappBtn = document.getElementById('share-option-whatsapp');
     const shareFriendTheoBtn = document.getElementById('share-friend-theo');
+    const bookingModal = document.getElementById('booking-modal');
+    const bookingModalBackdrop = document.getElementById('booking-modal-backdrop');
+    const bookingProgressState = document.getElementById('booking-progress-state');
+    const bookingSuccessState = document.getElementById('booking-success-state');
+    const bookingModalCloseBtn = document.getElementById('booking-modal-close');
 
     function openShareMiniBanner() {
         if (shareMiniBanner) {
@@ -1461,6 +1495,28 @@ window.addEventListener('load', function() {
         if (!shareMiniBanner) return;
         shareMiniBanner.classList.toggle('hidden');
     }
+
+    function closeBookingModal() {
+        if (!bookingModal) return;
+        bookingModal.classList.add('hidden');
+        bookingProgressState?.classList.remove('hidden');
+        bookingSuccessState?.classList.add('hidden');
+    }
+
+    function startBookingFlow() {
+        if (!bookingModal) return;
+        bookingModal.classList.remove('hidden');
+        bookingProgressState?.classList.remove('hidden');
+        bookingSuccessState?.classList.add('hidden');
+
+        setTimeout(() => {
+            bookingProgressState?.classList.add('hidden');
+            bookingSuccessState?.classList.remove('hidden');
+        }, 2600);
+    }
+
+    bookingModalBackdrop?.addEventListener('click', closeBookingModal);
+    bookingModalCloseBtn?.addEventListener('click', closeBookingModal);
 
     closeShareMiniBannerBtn?.addEventListener('click', function() {
         closeShareMiniBanner();
@@ -1555,7 +1611,7 @@ window.addEventListener('load', function() {
     });
 
     addTouchFeedback(document.getElementById('open-chat-btn'), () => {
-        window.location.href = 'chat.html';
+        startBookingFlow();
     });
 
     addTouchFeedback(document.getElementById('new-trip-btn'), () => {
