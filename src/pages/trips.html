@@ -50,23 +50,10 @@
 </head>
 <body class="bg-gray-50">
 
-<!-- Toast notification -->
-<div id="toast-notification" class="fixed top-4 right-4 z-50 hidden">
-    <div class="bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center space-x-2">
-        <i class="fa-solid fa-check-circle"></i>
-        <span>Sincronizzato</span>
-    </div>
-</div>
-
 <!-- Offline badge -->
 <div id="offline-badge" class="fixed top-4 left-4 z-50 bg-gray-800 text-white px-3 py-1 rounded-full text-xs hidden">
     <i class="fa-solid fa-wifi-slash mr-1"></i>
     Offline
-</div>
-
-<!-- Sync queue -->
-<div id="sync-queue" class="fixed top-16 left-4 z-50 bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs hidden">
-    <span id="pending-count">3</span> modifiche in coda
 </div>
 
 <div class="w-full min-h-screen overflow-hidden">
@@ -184,73 +171,21 @@
             <div class="relative h-48 overflow-hidden">
                 <img class="w-full h-full object-cover" 
                      src="https://images.unsplash.com/photo-1563385812002-6698a7a36355?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                     alt="Lago Maggiore Isola Bella" />
+                     alt="Langhe hills and vineyards" />
                 <div class="absolute inset-0 trip-image-overlay"></div>
                 <div class="absolute top-3 right-3">
                     <button class="trip-menu-btn focus-ring p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full" data-trip-id="2" aria-label="Menu viaggio">
                         <i class="fa-solid fa-ellipsis text-gray-700"></i>
                     </button>
                 </div>
-                <div class="absolute bottom-3 left-3 right-3 flex items-center space-x-2">
-                    <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">In arrivo</span>
-                </div>
             </div>
             <div class="p-4">
-                <h3 class="font-bold text-lg text-gray-900 mb-1">Weekend Lago Maggiore</h3>
-                <p class="text-sm text-gray-600 mb-3">15-17 nov 2026</p>
+                <h3 class="font-bold text-lg text-gray-900 mb-1">Langhe Trail & Tasting</h3>
+                <p class="text-sm text-gray-600 mb-3">12-13 ott 2025</p>
                 
                 <div class="flex items-center space-x-2 mb-3 text-sm text-gray-600">
                     <i class="fa-solid fa-route text-blue-500"></i>
-                    <span>Milano → Stresa → Isola Bella</span>
-                </div>
-                
-                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div class="flex items-center space-x-3">
-                        <div class="flex items-center space-x-1 text-sm text-gray-600">
-                            <i class="fa-solid fa-users"></i>
-                            <span>4</span>
-                        </div>
-                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">€€</span>
-                        <i class="fa-solid fa-exclamation-triangle text-red-500" title="Attenzione"></i>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <button class="action-btn focus-ring p-2 hover:bg-blue-50 rounded-full" title="Apri mappa" aria-label="Mappa">
-                            <i class="fa-solid fa-map text-blue-600"></i>
-                        </button>
-                        <button class="action-btn focus-ring p-2 hover:bg-green-50 rounded-full" title="Chat" aria-label="Chat">
-                            <i class="fa-solid fa-comments text-green-600"></i>
-                        </button>
-                        <button class="action-btn focus-ring p-2 hover:bg-purple-50 rounded-full" title="Condividi" aria-label="Condividi">
-                            <i class="fa-solid fa-share text-purple-600"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="trip-card card-hover bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer" data-trip-id="3">
-            <div class="relative h-48 overflow-hidden">
-                <img class="w-full h-full object-cover" 
-                     src="https://images.unsplash.com/photo-1677967062550-f2d38a986a03?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                     alt="Valle d'Aosta mountains" />
-                <div class="absolute inset-0 trip-image-overlay"></div>
-                <div class="absolute top-3 right-3">
-                    <button class="trip-menu-btn focus-ring p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full" data-trip-id="3" aria-label="Menu viaggio">
-                        <i class="fa-solid fa-ellipsis text-gray-700"></i>
-                    </button>
-                </div>
-                <div class="absolute bottom-3 left-3 right-3 flex items-center space-x-2">
-                    <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">In arrivo</span>
-                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">Conflitto</span>
-                </div>
-            </div>
-            <div class="p-4">
-                <h3 class="font-bold text-lg text-gray-900 mb-1">Road trip Valle d'Aosta</h3>
-                <p class="text-sm text-gray-600 mb-3">1-8 dic 2026</p>
-                
-                <div class="flex items-center space-x-2 mb-3 text-sm text-gray-600">
-                    <i class="fa-solid fa-route text-blue-500"></i>
-                    <span>Torino → Aosta → Courmayeur</span>
+                    <span>Alba → Barolo → La Morra</span>
                 </div>
                 
                 <div class="flex items-center justify-between pt-3 border-t border-gray-100">
@@ -259,7 +194,7 @@
                             <i class="fa-solid fa-users"></i>
                             <span>2</span>
                         </div>
-                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">€</span>
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">€€</span>
                         <i class="fa-solid fa-check-circle text-green-500"></i>
                     </div>
                     <div class="flex items-center space-x-1">
@@ -282,57 +217,6 @@
 <!-- Past section -->
 <div id="past-section" class="mb-8">
     <h2 class="text-lg font-semibold text-gray-900 mb-4">Passati (ultimo anno)</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="trip-card card-hover bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer" data-trip-id="4">
-            <div class="relative h-48 overflow-hidden">
-                <img class="w-full h-full object-cover" 
-                     style="object-position: center 65%;"
-                     src="https://images.unsplash.com/photo-1727824801808-434da046aefe?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                     alt="Torino esoterica" />
-                <div class="absolute inset-0 trip-image-overlay"></div>
-                <div class="absolute top-3 right-3">
-                    <button class="trip-menu-btn focus-ring p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full" data-trip-id="4" aria-label="Menu viaggio">
-                        <i class="fa-solid fa-ellipsis text-gray-700"></i>
-                    </button>
-                </div>
-                <div class="absolute bottom-3 left-3 right-3">
-                    <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-medium">Passato</span>
-                </div>
-            </div>
-            <div class="p-4">
-                <h3 class="font-bold text-lg text-gray-900 mb-1">Torino Esoterica</h3>
-                <p class="text-sm text-gray-600 mb-3">20-30 ago 2024</p>
-                
-                <div class="flex items-center space-x-2 mb-3 text-sm text-gray-600">
-                    <i class="fa-solid fa-route text-blue-500"></i>
-                    <span>Torino</span>
-                </div>
-                
-                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div class="flex items-center space-x-3">
-                        <div class="flex items-center space-x-1 text-sm text-gray-600">
-                            <i class="fa-solid fa-users"></i>
-                            <span>2</span>
-                        </div>
-                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">€€</span>
-                        <i class="fa-solid fa-check-circle text-green-500"></i>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <button class="action-btn focus-ring p-2 hover:bg-blue-50 rounded-full" title="Apri mappa" aria-label="Mappa">
-                            <i class="fa-solid fa-map text-blue-600"></i>
-                        </button>
-                        <button class="action-btn focus-ring p-2 hover:bg-green-50 rounded-full" title="Chat" aria-label="Chat">
-                            <i class="fa-solid fa-comments text-green-600"></i>
-                        </button>
-                        <button class="action-btn focus-ring p-2 hover:bg-purple-50 rounded-full" title="Condividi" aria-label="Condividi">
-                            <i class="fa-solid fa-share text-purple-600"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Empty state -->
@@ -446,8 +330,6 @@ window.addEventListener('load', function() {
     const tripMenuBtns = document.querySelectorAll('.trip-menu-btn');
     const backBtn = document.getElementById('back-btn');
     const offlineBadge = document.getElementById('offline-badge');
-    const syncQueue = document.getElementById('sync-queue');
-    const toastNotification = document.getElementById('toast-notification');
 
     // Check online status
     function checkOnlineStatus() {
@@ -575,18 +457,6 @@ window.addEventListener('load', function() {
         createTripEmpty.addEventListener('click', () => window.location.href = 'chat.html');
     }
 
-    // Mock sync simulation
-    setTimeout(() => {
-        syncQueue.classList.remove('hidden');
-    }, 2000);
-
-    setTimeout(() => {
-        syncQueue.classList.add('hidden');
-        toastNotification.classList.remove('hidden');
-        setTimeout(() => {
-            toastNotification.classList.add('hidden');
-        }, 3000);
-    }, 5000);
 });
 </script>
 
